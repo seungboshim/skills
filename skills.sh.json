@@ -2,6 +2,11 @@
   "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
   "groupings": [
     {
+      "title": "Workflows",
+      "description": "Full-cycle guides for building features end-to-end.",
+      "skills": ["feature-flow", "feature-flow-superpowers"]
+    },
+    {
       "title": "Design Systems",
       "description": "Design system tooling and refactoring guides for frontend projects.",
       "skills": ["tailwind-design-system"]

@@ -24,6 +24,22 @@ feature-flow 의 superpowers 통합 버전. 각 step 에서 매칭되는 superpo
 - `superpowers:verification-before-completion` 으로 evidence-based 완료
 - 4원칙 ↔ TDD 결 충돌 명시적 해결
 
+### daily
+
+세션 오리엔트 + 작업 추천 — backlog·최근 패치노트·git 상태를 읽어 "지금 어디" 지도와 우선순위 "오늘 뭐" 목록을 만든다.
+
+- 읽기 전용 — 오리엔트·추천만, 파일 수정 X
+- backlog/patch 컨벤션 발견 (프로젝트 독립적)
+- feature-flow 의 사이클 입구로 짝
+
+### worklog
+
+작업 후 문서화 의식 — 간결한 release-note 패치노트 + (동작 변화 시) feature-spec 갱신 + backlog 체크를 한 번에.
+
+- 전체 사이클과 분리 — 어떤 작업 후에도 단독 호출
+- 프로젝트 독립적 — 문서 컨벤션 발견
+- feature-flow 의 사이클 출구로 짝
+
 ### tailwind-design-system
 
 Tailwind CSS + Next.js 프로젝트용 디자인 시스템 빌더·리팩터링 가이드.
@@ -46,5 +62,7 @@ npx skills add seungboshim/skills
 /plugin marketplace add seungboshim/skills
 /plugin install feature-flow@seungboshim-skills
 /plugin install feature-flow-superpowers@seungboshim-skills
+/plugin install daily@seungboshim-skills
+/plugin install worklog@seungboshim-skills
 /plugin install tailwind-design-system@seungboshim-skills
 ```

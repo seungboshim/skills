@@ -7,6 +7,11 @@
       "skills": ["feature-flow", "feature-flow-superpowers"]
     },
     {
+      "title": "Session",
+      "description": "Cycle bookends — orient at session start, document after work.",
+      "skills": ["daily", "worklog"]
+    },
+    {
       "title": "Design Systems",
       "description": "Design system tooling and refactoring guides for frontend projects.",
       "skills": ["tailwind-design-system"]

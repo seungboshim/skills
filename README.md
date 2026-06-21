@@ -24,6 +24,22 @@ Superpowers-extended variant of feature-flow. Same step structure but each step 
 - Evidence-based completion via `superpowers:verification-before-completion`
 - Explicit resolution of 4-principle ↔ TDD overlap
 
+### daily
+
+Session orientation + work recommendation — reads the backlog, recent patch notes, and git state to produce a quick "where am I" map and a prioritized "what to work on" list.
+
+- Read-only — orients and recommends, never edits files
+- Discovers your backlog/patch conventions (project-agnostic)
+- Pairs with feature-flow as the cycle entry point
+
+### worklog
+
+Post-work documentation ritual — a concise release-note patch note + feature-spec update (when behavior changed) + backlog tick, in one pass.
+
+- Decoupled from the full cycle — call it after any chunk of work
+- Project-agnostic — discovers your doc conventions
+- Pairs with feature-flow as the cycle exit point
+
 ### tailwind-design-system
 
 Design system builder and refactorer for Tailwind CSS + Next.js projects.
@@ -46,5 +62,7 @@ npx skills add seungboshim/skills
 /plugin marketplace add seungboshim/skills
 /plugin install feature-flow@seungboshim-skills
 /plugin install feature-flow-superpowers@seungboshim-skills
+/plugin install daily@seungboshim-skills
+/plugin install worklog@seungboshim-skills
 /plugin install tailwind-design-system@seungboshim-skills
 ```

@@ -24,6 +24,22 @@ feature-flow 的 superpowers 集成版本。每个 step 显式调用对应的 su
 - 通过 `superpowers:verification-before-completion` 实现 evidence-based 完成
 - 显式解决 4 原则 ↔ TDD 风格冲突
 
+### daily
+
+会话定向 + 工作推荐 — 读取 backlog、最近的补丁说明和 git 状态，生成"我在哪里"的概览和按优先级排序的"该做什么"清单。
+
+- 只读 — 仅定向和推荐，不修改文件
+- 发现你的 backlog/patch 约定（项目无关）
+- 作为 feature-flow 的周期入口配套
+
+### worklog
+
+工作后的文档化流程 — 简洁的 release-note 补丁说明 + (行为变化时) feature-spec 更新 + backlog 勾选，一次完成。
+
+- 与完整周期解耦 — 任何一段工作后都可单独调用
+- 项目无关 — 发现你的文档约定
+- 作为 feature-flow 的周期出口配套
+
 ### tailwind-design-system
 
 Tailwind CSS + Next.js 项目的设计系统构建器与重构指南。
@@ -46,5 +62,7 @@ npx skills add seungboshim/skills
 /plugin marketplace add seungboshim/skills
 /plugin install feature-flow@seungboshim-skills
 /plugin install feature-flow-superpowers@seungboshim-skills
+/plugin install daily@seungboshim-skills
+/plugin install worklog@seungboshim-skills
 /plugin install tailwind-design-system@seungboshim-skills
 ```

@@ -24,6 +24,22 @@ feature-flow の superpowers 統合版。各 step で対応する superpowers �
 - `superpowers:verification-before-completion` による evidence-based 完了
 - 4 原則 ↔ TDD のスタイル衝突を明示的に解決
 
+### daily
+
+セッションのオリエンテーション + 作業レコメンド — backlog・最近のパッチノート・git の状態を読み、「今どこにいるか」のマップと優先順位付きの「何をやるか」リストを生成。
+
+- 読み取り専用 — オリエントとレコメンドのみ、ファイルは編集しない
+- backlog/patch のコンベンションを発見 (プロジェクト非依存)
+- feature-flow のサイクル入口としてペア
+
+### worklog
+
+作業後のドキュメント化の儀式 — 簡潔な release-note パッチノート + (動作が変わった場合) feature-spec 更新 + backlog チェックを一度に。
+
+- フルサイクルから分離 — どんな作業の後でも単独で呼び出せる
+- プロジェクト非依存 — ドキュメントのコンベンションを発見
+- feature-flow のサイクル出口としてペア
+
 ### tailwind-design-system
 
 Tailwind CSS + Next.js プロジェクト向けのデザインシステム ビルダー・リファクタリングガイド。
@@ -46,5 +62,7 @@ npx skills add seungboshim/skills
 /plugin marketplace add seungboshim/skills
 /plugin install feature-flow@seungboshim-skills
 /plugin install feature-flow-superpowers@seungboshim-skills
+/plugin install daily@seungboshim-skills
+/plugin install worklog@seungboshim-skills
 /plugin install tailwind-design-system@seungboshim-skills
 ```

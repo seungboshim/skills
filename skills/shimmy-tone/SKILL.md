@@ -11,7 +11,7 @@ license: MIT
 metadata:
   author: seungboshim
   locale: ko
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Shimmy Tone — Shim의 개인 저술 보이스

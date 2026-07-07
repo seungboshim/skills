@@ -15,6 +15,11 @@
       "title": "Design Systems",
       "description": "Design system tooling and refactoring guides for frontend projects.",
       "skills": ["tailwind-design-system"]
+    },
+    {
+      "title": "Language & Tone",
+      "description": "Guides for shaping Claude's writing voice.",
+      "skills": ["korean-tone", "shimmy-tone"]
     }
   ],
   "notGrouped": "bottom"

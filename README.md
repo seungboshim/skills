@@ -75,16 +75,14 @@ Tailwind CSS와 Next.js 프로젝트에서 디자인 시스템을 만들거나 �
 
 ## 설치
 
-### Claude Code 플러그인 경유 (권장)
+### 플러그인으로 설치
+
+Claude Code에서만 동작합니다. 스킬을 하나씩 골라 설치하고, `/plugin` 명령으로 켜고 끌 수
+있습니다.
 
 ```bash
 /plugin marketplace add seungboshim/skills
 /plugin install shimmy-tone@seungboshim-skills
-```
-
-원하는 스킬만 골라 설치하세요.
-
-```bash
 /plugin install feature-flow@seungboshim-skills
 /plugin install feature-flow-superpowers@seungboshim-skills
 /plugin install daily@seungboshim-skills
@@ -92,16 +90,16 @@ Tailwind CSS와 Next.js 프로젝트에서 디자인 시스템을 만들거나 �
 /plugin install tailwind-design-system@seungboshim-skills
 ```
 
-### skills.sh로 설치하기 (여러 에이전트에서 사용)
+### skills.sh로 설치
+
+Claude Code 외에 Codex, Cursor, Antigravity, Amp, Gemini CLI 등 여러 에이전트에 설치됩니다.
+아래 명령은 이 저장소의 스킬을 한 번에 받습니다.
 
 ```bash
 npx skills add seungboshim/skills
 ```
 
-다른 에이전트에서 쓰려면 `npx skills`로 설치하세요.
-
 > korean-tone은 [fromshim/korean-tone](https://github.com/fromshim/korean-tone)에 있습니다.
-> 거기서 설치하면 `tone-linter` 훅까지 자동으로 등록됩니다.
 
 ## 라이선스
 

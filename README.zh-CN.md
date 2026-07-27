@@ -70,16 +70,13 @@ Tailwind CSS + Next.js 项目的设计系统构建器与重构指南。
 
 ## 安装
 
-### 通过 Claude Code 插件 (推荐)
+### 作为插件安装
+
+仅适用于 Claude Code。可逐个选择技能，并用 `/plugin` 启用或停用。
 
 ```bash
 /plugin marketplace add seungboshim/skills
 /plugin install shimmy-tone@seungboshim-skills
-```
-
-按需选装：
-
-```bash
 /plugin install feature-flow@seungboshim-skills
 /plugin install feature-flow-superpowers@seungboshim-skills
 /plugin install daily@seungboshim-skills
@@ -87,16 +84,16 @@ Tailwind CSS + Next.js 项目的设计系统构建器与重构指南。
 /plugin install tailwind-design-system@seungboshim-skills
 ```
 
-### 通过 skills.sh (任意 agent)
+### 通过 skills.sh 安装
+
+除 Claude Code 外，还会安装到 Codex、Cursor、Antigravity、Amp、Gemini CLI 等。
+下面的命令会一次性获取本仓库的全部技能。
 
 ```bash
 npx skills add seungboshim/skills
 ```
 
-也可在 Claude Code 之外的 agent 中使用。
-
 > korean-tone 位于 [fromshim/korean-tone](https://github.com/fromshim/korean-tone)。
-> 从那里安装可自动完成 `tone-linter` 钩子的配置。
 
 ## 许可证
 

@@ -72,16 +72,13 @@ Design system builder and refactorer for Tailwind CSS + Next.js projects.
 
 ## Installation
 
-### Via Claude Code plugin (recommended)
+### Install as a plugin
+
+Claude Code only. Pick skills individually and toggle them with `/plugin`.
 
 ```bash
 /plugin marketplace add seungboshim/skills
 /plugin install shimmy-tone@seungboshim-skills
-```
-
-Install only what you want:
-
-```bash
 /plugin install feature-flow@seungboshim-skills
 /plugin install feature-flow-superpowers@seungboshim-skills
 /plugin install daily@seungboshim-skills
@@ -89,16 +86,16 @@ Install only what you want:
 /plugin install tailwind-design-system@seungboshim-skills
 ```
 
-### Via skills.sh (any agent)
+### Install via skills.sh
+
+Installs to Codex, Cursor, Antigravity, Amp, Gemini CLI, and others besides Claude Code.
+The command below pulls every skill in this repository at once.
 
 ```bash
 npx skills add seungboshim/skills
 ```
 
-Works outside Claude Code too.
-
-> korean-tone lives in [fromshim/korean-tone](https://github.com/fromshim/korean-tone) —
-> install it from there to get its `tone-linter` hook set up automatically.
+> korean-tone lives in [fromshim/korean-tone](https://github.com/fromshim/korean-tone).
 
 ## License
 

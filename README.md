@@ -4,14 +4,28 @@
 
 A collection of Claude Code skills by [@seungboshim](https://github.com/seungboshim).
 
+<p align="center">
+  <picture>
+    <source media="(prefers-reduced-motion: reduce)" srcset="assets/korean-tone-hero/korean-tone-static.png">
+    <img src="assets/korean-tone-hero/korean-tone.gif" width="960" alt="korean-tone removes stiff Korean phrasing while preserving client_id and other code identifiers">
+  </picture>
+</p>
+
+<p align="center">
+  <strong>Make Claude sound fluent in Korean — without translating away the things you need to grep.</strong><br>
+  One writing skill. One non-blocking linter. Zero renamed identifiers.
+</p>
+
+<p align="center"><code>/plugin install korean-tone@seungboshim-skills</code></p>
+
 ---
 
-## ⭐ korean-tone — when Claude's Korean reads like machine translation
+## ⭐ korean-tone — edit the voice, not the coordinates
 
-> **"이 함수에 대해 리팩토링을 진행하겠습니다"**
->
-> This is how Claude writes Korean by default. The meaning is right, but no human talks
-> like that. korean-tone strips the stiffness — **and leaves the code and the precision alone.**
+> The Korean is technically correct. It still sounds translated.
+
+korean-tone strips that stiffness from plans, implementation notes, reviews, checklists,
+ADRs, and user-facing choices — **while leaving code and precision alone.**
 
 ### What changes
 

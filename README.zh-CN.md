@@ -4,6 +4,15 @@
 
 [@seungboshim](https://github.com/seungboshim) 创建的 Claude Code 技能集合。
 
+<p align="center">
+  <picture>
+    <source media="(prefers-reduced-motion: reduce)" srcset="assets/korean-tone-hero/korean-tone-static.png">
+    <img src="assets/korean-tone-hero/korean-tone.gif" width="960" alt="korean-tone 去掉生硬的韩语翻译腔，同时保留 client_id 等代码标识符">
+  </picture>
+</p>
+
+<p align="center"><strong>只去掉韩语里的机翻味，代码标识符原封不动。</strong></p>
+
 ---
 
 ## ⭐ korean-tone — 当 Claude 的韩语读起来像机翻

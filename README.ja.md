@@ -4,6 +4,15 @@
 
 [@seungboshim](https://github.com/seungboshim) による Claude Code スキルのコレクションです。
 
+<p align="center">
+  <picture>
+    <source media="(prefers-reduced-motion: reduce)" srcset="assets/korean-tone-hero/korean-tone-static.png">
+    <img src="assets/korean-tone-hero/korean-tone.gif" width="960" alt="korean-tone が硬い韓国語表現を直し、client_id などのコード識別子は保持する様子">
+  </picture>
+</p>
+
+<p align="center"><strong>韓国語の翻訳調だけを取り除き、検索すべきコード識別子はそのまま。</strong></p>
+
 ---
 
 ## ⭐ korean-tone — Claude の韓国語が機械翻訳っぽいとき

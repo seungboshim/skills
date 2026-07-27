@@ -11,7 +11,7 @@
       "source": "./skills/korean-tone",
       "displayName": "Korean Tone",
       "description": "클로드의 딱딱한 한국어를 자연스럽게 교정한다. 번역투·수동태·한자어 과압축·내부 용어를 걷어내고, 코드 식별자는 그대로 지킨다. 저장되는 한국어 문서를 검사하는 tone-linter 훅이 함께 설치된다.",
-      "version": "2.4.0",
+      "version": "2.5.0",
       "author": {
         "name": "seungboshim"
       },

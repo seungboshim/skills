@@ -5,74 +5,19 @@
 [@seungboshim](https://github.com/seungboshim) 创建的 Claude Code 技能集合。
 
 <p align="center">
-  <picture>
-    <source media="(prefers-reduced-motion: reduce)" srcset="assets/korean-tone-hero/korean-tone-static.png">
-    <img src="assets/korean-tone-hero/korean-tone.gif" width="960" alt="korean-tone 去掉生硬的韩语翻译腔，同时保留 client_id 等代码标识符">
-  </picture>
+  <strong>korean-tone 已迁移到独立仓库 →
+  <a href="https://github.com/fromshim/korean-tone">fromshim/korean-tone</a></strong><br>
+  <code>/plugin install korean-tone@fromshim</code>
 </p>
 
-<p align="center"><strong>只去掉韩语里的机翻味，代码标识符原封不动。</strong></p>
-
 ---
 
-## ⭐ korean-tone — 当 Claude 的韩语读起来像机翻
+## 技能列表
 
-> **"이 함수에 대해 리팩토링을 진행하겠습니다"**
->
-> 这是 Claude 写韩语时的默认腔调。意思没错，但不像人说的话。
-> korean-tone 只剥掉这层生硬 — **代码和准确性原封不动。**
+### korean-tone → [fromshim/korean-tone](https://github.com/fromshim/korean-tone)
 
-### 会变成这样
-
-```diff
-- 이 함수에 대해 리팩토링을 진행하겠습니다.  (「就该函数 进行重构」)
-+ 이 함수를 리팩토링할게.                     (「我来重构这个函数」)
-
-- handler 가 stub 이었다.
-+ 웹훅을 받아놓고 저장을 안 했어. 껍데기만 있고 안이 비어 있던 거지.
-  (术语不删除，而是翻译 —「收到了 webhook 却没存。只有壳子，里面是空的」)
-```
-
-标识符会保留。`client_id` 仍是 `client_id` — **凡是能在仓库里搜到的名字
-(函数、文件、字段、提交) 都是坐标，不是散文。** 硬translate 成「客户标识符」会让人再也找不到它。
-
-Claude 自己的工作术语也会从面向用户的文字中清除：
-
-```diff
-- [충돌 A] OCR 품질 게이트를 어떻게 처리할까요?
-+ AI 가 손글씨를 잘 읽는지 언제 확인할까요?
-  (「如何处理冲突 A 的 OCR 质量门」→「什么时候确认 AI 能否读懂手写字」)
-```
-
-### 双层运作
-
-多数风格指南止步于「要这样写」，模型跑偏时没有任何东西能兜住。
-korean-tone 在其之上加了一层**检查**。
-
-| 层 | 做什么 | 怎么做 |
-|---|---|---|
-| **软层** — 技能 | 决定怎么写 | Claude 说韩语时规则始终生效 |
-| **硬层** — `tone-linter` 钩子 | 抓住跑偏 | 每次保存韩语 `.md` 都扫描翻译腔 |
-
-规则模式取自韩国国立国语院论文、Toss 技术写作指南、李五德《우리글 바로쓰기》。
-分为**误报极低的 error 级**和**按频率判断的 warn 级**。
-代码块、行内代码和 URL 会被排除；文件中加 `<!-- tone-lint: off -->` 即可整体跳过。
-
-它不会阻止写入 — 只是告诉 Claude 下一轮该改什么。
-
-### 安装
-
-```bash
-/plugin marketplace add seungboshim/skills
-/plugin install korean-tone@seungboshim-skills
-```
-
-钩子会一并安装。若使用 `npx skills`，钩子需要
-[单独注册](skills/korean-tone/hooks/README.md)。
-
----
-
-## 其他技能
+让 Claude 的韩语自然流畅，同时保留 `client_id` 等需要检索的代码标识符。
+附带写作技能与 `tone-linter` 钩子。现由独立仓库维护，本市场仍保留入口。
 
 ### shimmy-tone
 
@@ -129,13 +74,12 @@ Tailwind CSS + Next.js 项目的设计系统构建器与重构指南。
 
 ```bash
 /plugin marketplace add seungboshim/skills
-/plugin install korean-tone@seungboshim-skills
+/plugin install shimmy-tone@seungboshim-skills
 ```
 
 按需选装：
 
 ```bash
-/plugin install shimmy-tone@seungboshim-skills
 /plugin install feature-flow@seungboshim-skills
 /plugin install feature-flow-superpowers@seungboshim-skills
 /plugin install daily@seungboshim-skills
@@ -149,8 +93,10 @@ Tailwind CSS + Next.js 项目的设计系统构建器与重构指南。
 npx skills add seungboshim/skills
 ```
 
-也可在 Claude Code 之外的 agent 中使用，但 korean-tone 的钩子需要
-[单独注册](skills/korean-tone/hooks/README.md)。
+也可在 Claude Code 之外的 agent 中使用。
+
+> korean-tone 位于 [fromshim/korean-tone](https://github.com/fromshim/korean-tone)。
+> 从那里安装可自动完成 `tone-linter` 钩子的配置。
 
 ## 许可证
 

@@ -21,7 +21,9 @@ seungboshim의 글쓰기 스타일로 쓰는 스킬. 지금은 **개발 블로�
 
 ## korean-tone 위에 얹힌다
 
-이 스킬은 **korean-tone을 대체하지 않고 그 위에 얹힌다.**
+이 스킬은 **korean-tone을 대체하지 않고 그 위에 얹힌다.** korean-tone은 별도 저장소에 있다
+— [fromshim/korean-tone](https://github.com/fromshim/korean-tone)
+(`/plugin install korean-tone@fromshim`). 함께 설치해 두는 편이 좋다.
 
 1. 먼저 **korean-tone 공통 어투 규칙**을 적용한다 — 번역투·과한 수동태·한자 과압축·상투
    반복 제거. (블로그도 번역기 돌린 문장은 안 된다.)
@@ -38,7 +40,7 @@ seungboshim의 글쓰기 스타일로 쓰는 스킬. 지금은 **개발 블로�
 - 사용자가 "블로그 톤으로", "내 말투로 써줘" 라고 할 때
 
 설계 기록·연구노트처럼 담백한 문어체 글은 이 스킬이 아니라 **korean-tone**의
-`references/research-note.md`를 쓴다.
+[`references/research-note.md`](https://github.com/fromshim/korean-tone/blob/main/references/research-note.md)를 쓴다.
 
 ## 요소별 보이스
 

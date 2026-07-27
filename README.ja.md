@@ -5,76 +5,20 @@
 [@seungboshim](https://github.com/seungboshim) による Claude Code スキルのコレクションです。
 
 <p align="center">
-  <picture>
-    <source media="(prefers-reduced-motion: reduce)" srcset="assets/korean-tone-hero/korean-tone-static.png">
-    <img src="assets/korean-tone-hero/korean-tone.gif" width="960" alt="korean-tone が硬い韓国語表現を直し、client_id などのコード識別子は保持する様子">
-  </picture>
+  <strong>korean-tone は独立したリポジトリに移動しました →
+  <a href="https://github.com/fromshim/korean-tone">fromshim/korean-tone</a></strong><br>
+  <code>/plugin install korean-tone@fromshim</code>
 </p>
 
-<p align="center"><strong>韓国語の翻訳調だけを取り除き、検索すべきコード識別子はそのまま。</strong></p>
-
 ---
 
-## ⭐ korean-tone — Claude の韓国語が機械翻訳っぽいとき
+## スキル一覧
 
-> **"이 함수에 대해 리팩토링을 진행하겠습니다"**
->
-> Claude が韓国語で書くと、こういう文になる。意味は合っているのに、人が書いた感じがしない。
-> korean-tone はその硬さだけを取り除く — **コードと正確さはそのままに。**
+### korean-tone → [fromshim/korean-tone](https://github.com/fromshim/korean-tone)
 
-### こう変わる
-
-```diff
-- 이 함수에 대해 리팩토링을 진행하겠습니다.  (「この関数について リファクタリングを実施します」)
-+ 이 함수를 리팩토링할게.                     (「この関数をリファクタリングするね」)
-
-- handler 가 stub 이었다.
-+ 웹훅을 받아놓고 저장을 안 했어. 껍데기만 있고 안이 비어 있던 거지.
-  (専門用語は消さずに通訳する —「webhook を受け取って保存していなかった。
-   殻だけあって中身が空だったわけ」)
-```
-
-識別子は残る。`client_id` は `client_id` のまま — **リポジトリで検索できる名前
-(関数・ファイル・フィールド・コミット) は座標であって、訳す対象ではない。**
-
-Claude 自身の作業語彙もユーザー向けの文面から取り除く:
-
-```diff
-- [충돌 A] OCR 품질 게이트를 어떻게 처리할까요?
-+ AI 가 손글씨를 잘 읽는지 언제 확인할까요?
-  (「衝突 A の OCR 品質ゲートをどう処理しますか」→「AI が手書きをちゃんと読めるか
-   いつ確認しますか」)
-```
-
-### 二層で動く
-
-多くのスタイルガイドは「こう書け」で終わり、モデルがぶれても捕まえられない。
-korean-tone はその上に**検査層**を重ねる。
-
-| 層 | 何を | どうやって |
-|---|---|---|
-| **ソフト** — スキル | 書き方を決める | Claude が韓国語で話すとき常に適用 |
-| **ハード** — `tone-linter` フック | ぶれを捕まえる | 韓国語 `.md` を保存するたびに翻訳調をスキャン |
-
-パターンは国立国語院の論文、Toss のテクニカルライティングガイド、イ・オドク『우리글 바로쓰기』
-から抽出。**誤検出のほぼない error 級**と**頻度で判断する warn 級**に分かれる。
-コードブロック・インラインコード・URL は除外、`<!-- tone-lint: off -->` でファイル単位の無効化も可能。
-
-書き込みをブロックはしない — 次のターンで直せるよう Claude に伝えるだけ。
-
-### インストール
-
-```bash
-/plugin marketplace add seungboshim/skills
-/plugin install korean-tone@seungboshim-skills
-```
-
-フックも一緒に入る。`npx skills` を使う場合はフックの
-[個別登録](skills/korean-tone/hooks/README.md)が必要。
-
----
-
-## その他のスキル
+Claude の韓国語を自然にしつつ、`client_id` のようなコード識別子はそのまま保持します。
+執筆スキルと `tone-linter` フックを同梱。現在は独立リポジトリで管理していますが、
+このマーケットプレイスからも引き続き導入できます。
 
 ### shimmy-tone
 
@@ -132,13 +76,12 @@ Tailwind CSS + Next.js プロジェクト向けのデザインシステム ビ�
 
 ```bash
 /plugin marketplace add seungboshim/skills
-/plugin install korean-tone@seungboshim-skills
+/plugin install shimmy-tone@seungboshim-skills
 ```
 
 必要なものだけ選んで:
 
 ```bash
-/plugin install shimmy-tone@seungboshim-skills
 /plugin install feature-flow@seungboshim-skills
 /plugin install feature-flow-superpowers@seungboshim-skills
 /plugin install daily@seungboshim-skills
@@ -152,8 +95,10 @@ Tailwind CSS + Next.js プロジェクト向けのデザインシステム ビ�
 npx skills add seungboshim/skills
 ```
 
-Claude Code 以外のエージェントでも使える。ただし korean-tone のフックは
-[個別登録](skills/korean-tone/hooks/README.md)が必要。
+Claude Code 以外のエージェントでも使えます。
+
+> korean-tone は [fromshim/korean-tone](https://github.com/fromshim/korean-tone) にあります。
+> そちらから導入すると `tone-linter` フックも自動で設定されます。
 
 ## ライセンス
 

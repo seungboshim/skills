@@ -4,22 +4,32 @@
     {
       "title": "Workflows",
       "description": "Full-cycle guides for building features end-to-end.",
-      "skills": ["feature-flow", "feature-flow-superpowers"]
+      "skills": [
+        "feature-flow",
+        "feature-flow-superpowers"
+      ]
     },
     {
       "title": "Session",
       "description": "Cycle bookends — orient at session start, document after work.",
-      "skills": ["daily", "worklog"]
+      "skills": [
+        "daily",
+        "worklog"
+      ]
     },
     {
       "title": "Design Systems",
       "description": "Design system tooling and refactoring guides for frontend projects.",
-      "skills": ["tailwind-design-system"]
+      "skills": [
+        "tailwind-design-system"
+      ]
     },
     {
       "title": "Language & Tone",
       "description": "Guides for shaping Claude's writing voice.",
-      "skills": ["korean-tone", "shimmy-tone"]
+      "skills": [
+        "shimmy-tone"
+      ]
     }
   ],
   "notGrouped": "bottom"

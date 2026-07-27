@@ -5,82 +5,20 @@
 A collection of Claude Code skills by [@seungboshim](https://github.com/seungboshim).
 
 <p align="center">
-  <picture>
-    <source media="(prefers-reduced-motion: reduce)" srcset="assets/korean-tone-hero/korean-tone-static.png">
-    <img src="assets/korean-tone-hero/korean-tone.gif" width="960" alt="korean-tone removes stiff Korean phrasing while preserving client_id and other code identifiers">
-  </picture>
+  <strong>korean-tone has moved to its own repository →
+  <a href="https://github.com/fromshim/korean-tone">fromshim/korean-tone</a></strong><br>
+  <code>/plugin install korean-tone@fromshim</code>
 </p>
-
-<p align="center">
-  <strong>Make Claude sound fluent in Korean — without translating away the things you need to grep.</strong><br>
-  One writing skill. One non-blocking linter. Zero renamed identifiers.
-</p>
-
-<p align="center"><code>/plugin install korean-tone@seungboshim-skills</code></p>
 
 ---
 
-## ⭐ korean-tone — edit the voice, not the coordinates
+## Skills
 
-> The Korean is technically correct. It still sounds translated.
+### korean-tone → [fromshim/korean-tone](https://github.com/fromshim/korean-tone)
 
-korean-tone strips that stiffness from plans, implementation notes, reviews, checklists,
-ADRs, and user-facing choices — **while leaving code and precision alone.**
-
-### What changes
-
-```diff
-- 이 함수에 대해 리팩토링을 진행하겠습니다.   ("I will proceed with refactoring of this function")
-+ 이 함수를 리팩토링할게.                      ("I'll refactor this function")
-
-- handler 가 stub 이었다.
-+ 웹훅을 받아놓고 저장을 안 했어. 껍데기만 있고 안이 비어 있던 거지.
-  (jargon isn't deleted — it's interpreted: "it took the webhook and never stored it")
-```
-
-Identifiers survive. `client_id` stays `client_id` — **anything you can grep for in the
-repo (functions, files, fields, commits) is a coordinate, not prose.** Translating it to
-"고객 식별자" would make it unfindable.
-
-Claude's own working vocabulary gets stripped from user-facing text:
-
-```diff
-- [충돌 A] OCR 품질 게이트를 어떻게 처리할까요?
-+ AI 가 손글씨를 잘 읽는지 언제 확인할까요?
-  ("How should we handle conflict A's OCR quality gate?" → "When should we check
-   whether the AI reads handwriting well?")
-```
-
-### It works in two layers
-
-Most style guides stop at "write it this way" — when the model drifts, nothing catches it.
-korean-tone adds an enforcement layer on top.
-
-| Layer | What | How |
-|---|---|---|
-| **Soft** — the skill | Shapes the writing | Rules apply whenever Claude speaks Korean |
-| **Hard** — `tone-linter` hook | Catches the drift | Scans every Korean `.md` you save for translationese |
-
-Patterns are sourced from National Institute of Korean Language papers, Toss's technical
-writing guide, and 이오덕's *우리글 바로쓰기*. They're split into **error grade** (near-zero
-false positives) and **warn grade** (judged by frequency). Code blocks, inline code, and
-URLs are excluded; `<!-- tone-lint: off -->` skips a file entirely.
-
-It never blocks a write — it just tells Claude what to fix next turn.
-
-### Install
-
-```bash
-/plugin marketplace add seungboshim/skills
-/plugin install korean-tone@seungboshim-skills
-```
-
-The hook installs with it. If you use `npx skills` instead, the hook needs
-[separate registration](skills/korean-tone/hooks/README.md).
-
----
-
-## Other skills
+Makes Claude sound fluent in Korean without translating away the identifiers you need to
+grep. Ships a writing skill plus a non-blocking `tone-linter` hook. Now maintained in its
+own repository; still listed in this marketplace for convenience.
 
 ### shimmy-tone
 
@@ -138,13 +76,12 @@ Design system builder and refactorer for Tailwind CSS + Next.js projects.
 
 ```bash
 /plugin marketplace add seungboshim/skills
-/plugin install korean-tone@seungboshim-skills
+/plugin install shimmy-tone@seungboshim-skills
 ```
 
 Install only what you want:
 
 ```bash
-/plugin install shimmy-tone@seungboshim-skills
 /plugin install feature-flow@seungboshim-skills
 /plugin install feature-flow-superpowers@seungboshim-skills
 /plugin install daily@seungboshim-skills
@@ -158,8 +95,10 @@ Install only what you want:
 npx skills add seungboshim/skills
 ```
 
-Works outside Claude Code too — but korean-tone's hook needs
-[separate registration](skills/korean-tone/hooks/README.md).
+Works outside Claude Code too.
+
+> korean-tone lives in [fromshim/korean-tone](https://github.com/fromshim/korean-tone) —
+> install it from there to get its `tone-linter` hook set up automatically.
 
 ## License
 

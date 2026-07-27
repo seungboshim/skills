@@ -14,7 +14,6 @@
       },
       "displayName": "Korean Tone",
       "description": "클로드의 딱딱한 한국어를 자연스럽게 다듬는다. 코드 식별자는 그대로 지킨다. 별도 저장소(fromshim/korean-tone)에서 가져온다.",
-      "version": "2.5.0",
       "author": {
         "name": "seungboshim"
       },

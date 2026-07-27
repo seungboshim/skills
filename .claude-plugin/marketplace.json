@@ -1,0 +1,122 @@
+{
+  "name": "seungboshim-skills",
+  "owner": {
+    "name": "seungboshim",
+    "url": "https://github.com/seungboshim"
+  },
+  "description": "Claude Code skills by seungboshim — Korean tone correction, feature workflows, design systems",
+  "plugins": [
+    {
+      "name": "korean-tone",
+      "source": "./skills/korean-tone",
+      "displayName": "Korean Tone",
+      "description": "클로드의 딱딱한 한국어를 자연스럽게 교정한다. 번역투·수동태·한자어 과압축·내부 용어를 걷어내고, 코드 식별자는 그대로 지킨다. 저장되는 한국어 문서를 검사하는 tone-linter 훅이 함께 설치된다.",
+      "version": "2.4.0",
+      "author": {
+        "name": "seungboshim"
+      },
+      "category": "writing",
+      "tags": [
+        "korean",
+        "tone",
+        "writing",
+        "linter",
+        "hook",
+        "i18n"
+      ]
+    },
+    {
+      "name": "shimmy-tone",
+      "source": "./skills/shimmy-tone",
+      "displayName": "Shimmy Tone",
+      "description": "개발 블로그(벨로그) 저술 보이스 — 비유·밈·반전으로 어려운 개념을 쉽게. korean-tone 위에 얹히는 개인화 스킬.",
+      "version": "1.1.0",
+      "author": {
+        "name": "seungboshim"
+      },
+      "category": "writing",
+      "tags": [
+        "korean",
+        "blog",
+        "writing",
+        "voice"
+      ]
+    },
+    {
+      "name": "feature-flow",
+      "source": "./skills/feature-flow",
+      "description": "Full-cycle guide for building a single screen/feature — scope → plan → execute → review → commit → document, with a human checkpoint at each step.",
+      "version": "1.1.0",
+      "author": {
+        "name": "seungboshim"
+      },
+      "category": "workflow",
+      "tags": [
+        "workflow",
+        "planning",
+        "feature"
+      ]
+    },
+    {
+      "name": "feature-flow-superpowers",
+      "source": "./skills/feature-flow-superpowers",
+      "description": "Superpowers-extended variant of feature-flow — each step explicitly calls matching superpowers skills (TDD, code review, verification).",
+      "version": "1.0.0",
+      "author": {
+        "name": "seungboshim"
+      },
+      "category": "workflow",
+      "tags": [
+        "workflow",
+        "superpowers",
+        "tdd"
+      ]
+    },
+    {
+      "name": "daily",
+      "source": "./skills/daily",
+      "description": "Session orientation + work recommendation — reads backlog, recent patch notes, and git state to answer \"where am I\" and \"what should I work on\".",
+      "version": "1.0.0",
+      "author": {
+        "name": "seungboshim"
+      },
+      "category": "workflow",
+      "tags": [
+        "workflow",
+        "backlog",
+        "orientation"
+      ]
+    },
+    {
+      "name": "worklog",
+      "source": "./skills/worklog",
+      "description": "Post-work documentation ritual — patch note, feature-spec update, and backlog tick in one pass.",
+      "version": "1.0.0",
+      "author": {
+        "name": "seungboshim"
+      },
+      "category": "workflow",
+      "tags": [
+        "workflow",
+        "documentation",
+        "changelog"
+      ]
+    },
+    {
+      "name": "tailwind-design-system",
+      "source": "./skills/tailwind-design-system",
+      "description": "Design system builder and refactorer for Tailwind CSS + Next.js — style audit, semantic tokens, shared component extraction, migration.",
+      "version": "1.0.0",
+      "author": {
+        "name": "seungboshim"
+      },
+      "category": "design",
+      "tags": [
+        "tailwind",
+        "design-system",
+        "nextjs",
+        "tokens"
+      ]
+    }
+  ]
+}

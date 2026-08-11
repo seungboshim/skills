@@ -60,6 +60,15 @@ Post-work documentation ritual — a concise release-note patch note + feature-s
 - Project-agnostic — discovers your doc conventions
 - Pairs with feature-flow as the cycle exit point
 
+### handoff
+
+Writes a handoff document once context passes 80%, then hands it to the next session after `/clear`.
+
+- Starts the next session from a document you curated, not an auto-generated compact summary
+- Rewrites the document every time you cross 85%, 90%, or 95% — a late cleanup still leaves it current
+- Refreshes on demand via `/handoff`
+- Ships with Stop and SessionStart hooks — automatic detection only works when installed as a Claude Code plugin
+
 ### tailwind-design-system
 
 Design system builder and refactorer for Tailwind CSS + Next.js projects.
@@ -83,6 +92,7 @@ Claude Code only. Pick skills individually and toggle them with `/plugin`.
 /plugin install feature-flow-superpowers@seungboshim-skills
 /plugin install daily@seungboshim-skills
 /plugin install worklog@seungboshim-skills
+/plugin install handoff@seungboshim-skills
 /plugin install tailwind-design-system@seungboshim-skills
 ```
 

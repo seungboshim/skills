@@ -60,6 +60,15 @@ feature-flow の superpowers 統合版。各 step で対応する superpowers �
 - プロジェクト非依存 — ドキュメントのコンベンションを発見
 - feature-flow のサイクル出口としてペア
 
+### handoff
+
+コンテキストが 80% を超えるとハンドオフ文書を作成し、`/clear` 後の新しいセッションへ引き渡す仕組み。
+
+- 自動要約 (compact) ではなく、自分で整理した文書から次のセッションを始める
+- 85・90・95% を超えるたびに文書を書き直す — 遅れて整理しても最新の状態が残る
+- `/handoff` で好きなタイミングに手動更新できる
+- Stop・SessionStart フックが同梱されるため、自動検知は Claude Code プラグインとして導入したときのみ動作する
+
 ### tailwind-design-system
 
 Tailwind CSS + Next.js プロジェクト向けのデザインシステム ビルダー・リファクタリングガイド。
@@ -83,6 +92,7 @@ Claude Code 専用です。スキルを個別に選んで導入し、`/plugin` �
 /plugin install feature-flow-superpowers@seungboshim-skills
 /plugin install daily@seungboshim-skills
 /plugin install worklog@seungboshim-skills
+/plugin install handoff@seungboshim-skills
 /plugin install tailwind-design-system@seungboshim-skills
 ```
 

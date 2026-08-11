@@ -11,10 +11,11 @@
     },
     {
       "title": "Session",
-      "description": "Cycle bookends — orient at session start, document after work.",
+      "description": "Cycle bookends — orient at session start, document after work, hand off before clearing.",
       "skills": [
         "daily",
-        "worklog"
+        "worklog",
+        "handoff"
       ]
     },
     {

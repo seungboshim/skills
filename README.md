@@ -63,6 +63,15 @@ feature-flow에 [superpowers](https://github.com/obra/superpowers)를 연동한 
 - 동작이 바뀌었다면 기능 명세도 함께 갱신합니다.
 - 프로젝트의 기존 문서 규칙을 찾아 그 형식에 맞춥니다.
 
+### handoff
+
+컨텍스트가 80%를 넘으면 핸드오프 문서를 만들고, `/clear` 뒤 새 세션에 그 문서를 건넵니다.
+
+- 자동 요약(compact) 대신 직접 정리한 문서로 다음 세션을 시작합니다.
+- 85·90·95%를 넘길 때마다 문서를 다시 씁니다. 늦게 정리해도 최신 상태가 남습니다.
+- `/handoff`로 원하는 시점에 직접 갱신할 수 있습니다.
+- Stop·SessionStart 훅이 함께 설치되므로, 자동 감지는 Claude Code 플러그인으로 설치할 때만 동작합니다.
+
 ### tailwind-design-system
 
 Tailwind CSS와 Next.js 프로젝트에서 디자인 시스템을 만들거나 다듬을 때 사용합니다.
@@ -87,6 +96,7 @@ Claude Code에서만 동작합니다. 스킬을 하나씩 골라 설치하고, `
 /plugin install feature-flow-superpowers@seungboshim-skills
 /plugin install daily@seungboshim-skills
 /plugin install worklog@seungboshim-skills
+/plugin install handoff@seungboshim-skills
 /plugin install tailwind-design-system@seungboshim-skills
 ```
 

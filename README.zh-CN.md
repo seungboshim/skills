@@ -58,6 +58,15 @@ feature-flow 的 superpowers 集成版本。每个 step 显式调用对应的 su
 - 项目无关 — 发现你的文档约定
 - 作为 feature-flow 的周期出口配套
 
+### handoff
+
+上下文超过 80% 时生成交接文档,`/clear` 后把文档交给新会话。
+
+- 用你整理的文档开始下一个会话,而不是自动摘要 (compact)
+- 每次超过 85、90、95% 都会重写文档,迟一点整理也能留下最新状态
+- 用 `/handoff` 随时手动刷新
+- 附带 Stop、SessionStart 钩子,自动检测仅在作为 Claude Code 插件安装时才生效
+
 ### tailwind-design-system
 
 Tailwind CSS + Next.js 项目的设计系统构建器与重构指南。
@@ -81,6 +90,7 @@ Tailwind CSS + Next.js 项目的设计系统构建器与重构指南。
 /plugin install feature-flow-superpowers@seungboshim-skills
 /plugin install daily@seungboshim-skills
 /plugin install worklog@seungboshim-skills
+/plugin install handoff@seungboshim-skills
 /plugin install tailwind-design-system@seungboshim-skills
 ```
 

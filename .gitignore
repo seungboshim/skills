@@ -1,2 +1,9 @@
 # 어투 교정 학습용 코퍼스 (로컬 참고용, 커밋 안 함)
 docs/
+
+__pycache__/
+
+# handoff 스킬이 세션마다 만드는 파일
+.claude/handoff.md
+.claude/handoff.md.done
+.claude/handoff.tok

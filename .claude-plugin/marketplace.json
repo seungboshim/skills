@@ -105,6 +105,22 @@
       ]
     },
     {
+      "name": "handoff",
+      "source": "./skills/handoff",
+      "description": "Context handoff before /clear — writes a handoff doc once context passes 80%, rewrites it every 5% after, and hands it to the next session on SessionStart. Ships Stop + SessionStart hooks.",
+      "version": "1.0.0",
+      "author": {
+        "name": "seungboshim"
+      },
+      "category": "workflow",
+      "tags": [
+        "workflow",
+        "context",
+        "session",
+        "hook"
+      ]
+    },
+    {
       "name": "tailwind-design-system",
       "source": "./skills/tailwind-design-system",
       "description": "Design system builder and refactorer for Tailwind CSS + Next.js — style audit, semantic tokens, shared component extraction, migration.",

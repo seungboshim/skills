@@ -22,6 +22,12 @@ INTRO = {
     "compact": "# 압축 전 핸드오프\n\n자동 요약이 놓친 부분은 아래 문서로 보강한다.\n",
 }
 
+# 주입은 화면에 보이지 않는다. 무엇을 이어받았는지 사용자에게 알려준다
+NOTICE = {
+    "clear": "이전 세션 핸드오프를 이어받았어요.",
+    "compact": "압축 전 핸드오프를 다시 넣었어요.",
+}
+
 
 def paths(cwd):
     base = os.path.join(cwd, ".claude")
@@ -115,6 +121,14 @@ def stop(data):
     return 2
 
 
+def first_heading(body):
+    """문서의 첫 제목. 무엇을 이어받는지 사용자에게 보여주는 데 쓴다."""
+    for line in body.splitlines():
+        if line.startswith("# "):
+            return line[2:].strip()
+    return ""
+
+
 def session_start(data):
     source = data.get("source")
     intro = INTRO.get(source)
@@ -127,12 +141,28 @@ def session_start(data):
     except OSError:
         return 0
 
-    print(intro)
-    print(body)
+    kept = doc
     if source == "clear":
-        os.replace(doc, doc + ".done")  # 한 번만 건넨다
+        kept = doc + ".done"
+        os.replace(doc, kept)  # 한 번만 건넨다
         if os.path.exists(tok):
             os.remove(tok)
+
+    notice = NOTICE[source]
+    title = first_heading(body)
+    if title:
+        notice += f"\n{title}"
+    json.dump(
+        {
+            "systemMessage": f"{notice}\n원본: {kept}",
+            "hookSpecificOutput": {
+                "hookEventName": "SessionStart",
+                "additionalContext": intro + "\n" + body,
+            },
+        },
+        sys.stdout,
+        ensure_ascii=False,
+    )
     return 0
 
 
@@ -162,6 +192,9 @@ def selftest():
         assert context_size(plain_path) == (105, DEFAULT_LIMIT), context_size(plain_path)
 
         assert context_size(os.path.join(d, "missing.jsonl")) is None
+
+    assert first_heading("# 핸드오프: 훅 만들기\n\n## 다음\n") == "핸드오프: 훅 만들기"
+    assert first_heading("제목 없는 본문\n") == ""
 
     limit = 1_000_000
     assert not due(700_000, limit, 0)        # 임계 미달

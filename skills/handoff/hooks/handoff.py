@@ -13,8 +13,13 @@ import sys
 THRESHOLD = 0.80      # 이 비율을 넘으면 핸드오프 문서를 만든다
 REWRITE_STEP = 0.05   # 지난 갱신 후 이만큼 더 차면 다시 쓴다
 TAIL_BYTES = 1 << 20  # transcript 끝에서 이만큼만 읽는다. 마지막 usage 만 필요하다
-DEFAULT_LIMIT = 200_000
+
+# 요즘 모델은 대부분 1M 이다. Fable 5, Mythos 5, Opus 5, Opus 4.6~4.8,
+# Sonnet 5, Sonnet 4.6 이 전부 1M 이라 이쪽을 기본으로 잡는다
 WIDE_LIMIT = 1_000_000
+NARROW_LIMIT = 200_000
+# 200k 인 모델. Haiku 와 4.5 세대 이하가 여기 해당한다
+NARROW_MARKERS = ("haiku", "-4-5", "-4-1", "-4-0", "claude-3", "claude-2")
 
 INTRO = {
     "clear": "# 이전 세션 핸드오프\n\n앞 세션을 /clear 로 비우기 직전에 정리한 내용이다."
@@ -34,12 +39,11 @@ def paths(cwd):
     return os.path.join(base, "handoff.md"), os.path.join(base, "handoff.tok")
 
 
-def limit_for(used):
+def limit_for(model, used):
     """컨텍스트 한계.
 
-    transcript 의 message.model 은 `claude-opus-5` 처럼만 남고 1M 모드 여부가 붙지 않는다.
-    그래서 모델 이름으로는 한계를 알 수 없다. env 로 받은 값을 먼저 쓰고, 없으면 관측된
-    크기로 추정한다. 200k 를 넘겼다면 1M 세션이다.
+    env 로 받은 값이 가장 세다. 그 다음은 실측이다. 이미 200k 를 넘겼다면 모델 이름을
+    어떻게 읽었든 1M 세션이다. 마지막으로 모델 이름을 본다. 이름을 모르면 넓게 본다.
     """
     try:
         override = int(os.environ.get("HANDOFF_CONTEXT_LIMIT", "0"))
@@ -47,7 +51,11 @@ def limit_for(used):
         override = 0
     if override > 0:
         return override
-    return WIDE_LIMIT if used > DEFAULT_LIMIT else DEFAULT_LIMIT
+    if used > NARROW_LIMIT:
+        return WIDE_LIMIT
+    if any(marker in model for marker in NARROW_MARKERS):
+        return NARROW_LIMIT
+    return WIDE_LIMIT
 
 
 def context_size(transcript):
@@ -75,7 +83,7 @@ def context_size(transcript):
         used = (usage.get("input_tokens", 0)
                 + usage.get("cache_creation_input_tokens", 0)
                 + usage.get("cache_read_input_tokens", 0))
-        return used, limit_for(used)
+        return used, limit_for(message.get("model") or "", used)
     return None
 
 
@@ -170,15 +178,21 @@ def selftest():
     import tempfile
 
     os.environ.pop("HANDOFF_CONTEXT_LIMIT", None)
-    assert limit_for(120_000) == DEFAULT_LIMIT
-    assert limit_for(300_000) == WIDE_LIMIT      # 200k 를 넘겼으니 1M 세션이다
+    assert limit_for("claude-opus-5", 120_000) == WIDE_LIMIT
+    assert limit_for("claude-sonnet-5", 120_000) == WIDE_LIMIT
+    assert limit_for("claude-opus-4-6", 120_000) == WIDE_LIMIT
+    assert limit_for("", 120_000) == WIDE_LIMIT                    # 이름을 모르면 넓게
+    assert limit_for("claude-haiku-4-5-20251001", 120_000) == NARROW_LIMIT
+    assert limit_for("claude-sonnet-4-5", 120_000) == NARROW_LIMIT
+    assert limit_for("claude-haiku-4-5", 300_000) == WIDE_LIMIT    # 실측이 이름을 이긴다
     os.environ["HANDOFF_CONTEXT_LIMIT"] = "500000"
-    assert limit_for(120_000) == 500_000         # 명시한 값이 추정을 이긴다
+    assert limit_for("claude-haiku-4-5", 120_000) == 500_000       # env 가 가장 세다
     os.environ.pop("HANDOFF_CONTEXT_LIMIT")
 
     wide = ('{"message":{"model":"claude-opus-5","usage":{"input_tokens":10,'
             '"cache_creation_input_tokens":40,"cache_read_input_tokens":850000}}}')
-    plain = '{"message":{"usage":{"input_tokens":5,"cache_read_input_tokens":100}}}'
+    narrow = ('{"message":{"model":"claude-haiku-4-5-20251001",'
+              '"usage":{"input_tokens":5,"cache_read_input_tokens":100}}}')
 
     with tempfile.TemporaryDirectory() as d:
         wide_path = os.path.join(d, "wide.jsonl")
@@ -186,10 +200,10 @@ def selftest():
             f.write('{"type":"user"}\n' + wide + "\n")
         assert context_size(wide_path) == (850050, WIDE_LIMIT), context_size(wide_path)
 
-        plain_path = os.path.join(d, "plain.jsonl")
-        with open(plain_path, "w") as f:
-            f.write(plain + "\n")
-        assert context_size(plain_path) == (105, DEFAULT_LIMIT), context_size(plain_path)
+        narrow_path = os.path.join(d, "narrow.jsonl")
+        with open(narrow_path, "w") as f:
+            f.write(narrow + "\n")
+        assert context_size(narrow_path) == (105, NARROW_LIMIT), context_size(narrow_path)
 
         assert context_size(os.path.join(d, "missing.jsonl")) is None
 

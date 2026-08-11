@@ -67,11 +67,12 @@ description: 컨텍스트가 다 차기 전에 핸드오프 문서를 만들고,
 - 자동 요약을 끄고 핸드오프에만 맡기려면 settings.json 에 `"autoCompactEnabled": false`
 - 판정 로직 점검: `python3 hooks/handoff.py selftest`
 
-**1M 컨텍스트를 쓴다면 한계를 직접 알려줘라.** transcript 의 `message.model` 은
-`claude-opus-5` 처럼만 남고 1M 모드 여부가 붙지 않아서, 훅은 한계를 추정할 수밖에 없다.
-기본은 200k 로 보고, 관측 크기가 200k 를 넘는 순간 1M 세션으로 바꿔 잡는다. 그대로 두면
-200k 근처에서 한 번 헛트리거가 난다. settings.json 의 `env` 에 이렇게 넣으면 처음부터
-정확해진다.
+**컨텍스트 한계는 모델 이름으로 가른다.** 요즘 모델은 대부분 1M 이라 (Fable 5, Mythos 5,
+Opus 5, Opus 4.6~4.8, Sonnet 5, Sonnet 4.6) 그쪽을 기본으로 잡고, Haiku 와 4.5 세대
+이하만 200k 로 본다. 목록은 `hooks/handoff.py` 의 `NARROW_MARKERS` 다. 이름을 못 읽으면
+넓게 보고, 관측 크기가 이미 200k 를 넘었으면 이름이 무엇이든 1M 으로 판단한다.
+
+직접 못박으려면 settings.json 의 `env` 에 넣어라. env 가 가장 세다.
 
 ```json
 { "env": { "HANDOFF_CONTEXT_LIMIT": "1000000" } }

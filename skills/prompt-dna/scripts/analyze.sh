@@ -1,32 +1,56 @@
 #!/usr/bin/env bash
 # prompt-dna/analyze.sh — 내가 에이전트에게 해온 말을 전부 세어 지표로 만든다.
 #
-# 판정은 모델이 하고, 이 스크립트는 숫자만 낸다. 네트워크를 쓰지 않고 읽기 전용이다.
-# 원문 지시는 출력하지 않는다. 세어본 수치와 짧은 말버릇만 낸다.
+# 숫자와 유형 코드는 스크립트가 확정하고, 모델은 해석만 한다. 네트워크를 쓰지 않고
+# 읽기 전용이다. 원문 지시는 출력하지 않는다. 세어본 수치와 짧은 말버릇만 낸다.
 #
-#   ./analyze.sh                    # 전체 이력
-#   ./analyze.sh --days 30          # 최근 30일만
-#   ./analyze.sh --out /tmp/dna.md  # 파일로 저장하고 경로만 출력
+#   ./analyze.sh                     # 전체 이력, 찾을 수 있는 도구 전부
+#   ./analyze.sh --days 30           # 최근 30일만
+#   ./analyze.sh --source claude     # 한 도구만 (all | claude | codex)
+#   ./analyze.sh --out /tmp/dna.md   # 파일로 저장하고 경로만 출력
+#
+# 읽는 곳: ~/.claude/projects (Claude Code), ~/.codex/sessions (Codex CLI)
 
 set -uo pipefail
 export LC_ALL="${LC_ALL:-ko_KR.UTF-8}"
 
 DAYS=""
 OUT=""
+SOURCE="all"
 PROJ="$HOME/.claude/projects"
+CODEX="$HOME/.codex"
 
 while [ $# -gt 0 ]; do
   case "$1" in
     --days) DAYS="${2:-}"; shift 2 ;;
     --out) OUT="${2:-}"; shift 2 ;;
     --root) PROJ="${2:-}"; shift 2 ;;
-    -h|--help) sed -n '2,11p' "$0"; exit 0 ;;
+    --codex-root) CODEX="${2:-}"; shift 2 ;;
+    --source) SOURCE="${2:-}"; shift 2 ;;
+    -h|--help) sed -n '2,13p' "$0"; exit 0 ;;
     *) echo "모르는 옵션: $1" >&2; exit 2 ;;
   esac
 done
 
+case "$SOURCE" in
+  all|claude|codex) ;;
+  *) echo "--source 는 all, claude, codex 중 하나여야 한다: $SOURCE" >&2; exit 2 ;;
+esac
+
+if [ -n "$DAYS" ] && ! [[ "$DAYS" =~ ^[1-9][0-9]*$ ]]; then
+  echo "--days 는 1 이상의 정수여야 한다: $DAYS" >&2
+  exit 2
+fi
+
 command -v jq >/dev/null 2>&1 || { echo "jq 가 필요하다: brew install jq" >&2; exit 1; }
-[ -d "$PROJ" ] || { echo "세션 기록을 찾지 못했다: $PROJ" >&2; exit 1; }
+
+HAS_CLAUDE=0; HAS_CODEX=0
+[ "$SOURCE" != "codex" ] && [ -d "$PROJ" ] && HAS_CLAUDE=1
+[ "$SOURCE" != "claude" ] && [ -d "$CODEX/sessions" ] && HAS_CODEX=1
+if [ "$HAS_CLAUDE" -eq 0 ] && [ "$HAS_CODEX" -eq 0 ]; then
+  echo "읽을 세션 기록이 없다. Claude Code: $PROJ / Codex: $CODEX/sessions" >&2
+  exit 1
+fi
 
 NOW=$(date +%s)
 SINCE=0
@@ -37,7 +61,7 @@ TZOFF=$(date +%z | awk '{ s=substr($0,1,1); h=substr($0,2,2)+0; m=substr($0,4,2)
                           v=h*3600+m*60; print (s=="-" ? -v : v) }')
 
 TSV=$(mktemp -t promptdna)
-trap 'rm -f "$TSV" "$TSV.w" "$TSV.h"' EXIT
+trap 'rm -f "$TSV" "$TSV.w" "$TSV.h" "$TSV.claude" "$TSV.codex"' EXIT
 
 JQ_PROG='
   fromjson?
@@ -52,7 +76,8 @@ JQ_PROG='
       ((.cwd // "?") | split("/") | (if (.[-1] | test("^(app|apps|web|src|ios|android|packages|server|client|frontend|backend|api|lib)$")) and (length > 1) then .[-2:] | join("/") else .[-1] end)),
       (.sessionId // "?"),
       (.message.content | length),
-      .message.content ]
+      .message.content,
+      "claude" ]
   | @tsv'
 
 extract() { # $1 = jq select 조건, $2 = grep 사전 필터 (없으면 빈 문자열)
@@ -62,25 +87,69 @@ extract() { # $1 = jq select 조건, $2 = grep 사전 필터 (없으면 빈 문�
   else
     find "$PROJ" -name '*.jsonl' -exec cat {} + 2>/dev/null
   fi | jq -rR --argjson since "$SINCE" "${JQ_PROG/SELECTOR/$sel}" 2>/dev/null \
-     | sort -n -k1,1 > "$TSV"
-  grep -c . "$TSV" 2>/dev/null || true
+     | sort -n -k1,1 > "$TSV.claude"
+  grep -c . "$TSV.claude" 2>/dev/null || true
+}
+
+# Codex CLI 기록. cwd 는 session_meta 에, 사람이 친 말은 event_msg/user_message 에 있다.
+# 파일 하나에 흩어져 있어서 grep 으로 두 줄만 뽑아 파일명으로 이어 붙인다.
+extract_codex() {
+  [ "$HAS_CODEX" -eq 1 ] || { : > "$TSV.codex"; echo 0; return; }
+  find "$CODEX/sessions" -name '*.jsonl' -type f -print0 2>/dev/null \
+    | xargs -0 grep -H -E '"type":"session_meta"|"type":"user_message"' 2>/dev/null \
+    | awk '{ i = index($0, ":{"); if (i > 0) print substr($0, 1, i-1) "\t" substr($0, i+1) }' \
+    | jq -rR --argjson since "$SINCE" '
+        split("\t") as $p
+        | $p[0] as $f
+        | ($p[1:] | join("\t") | fromjson?) as $j
+        | if $j == null then empty
+          elif $j.type == "session_meta" then
+            [$f, "meta", ($j.payload.cwd // "?")] | @tsv
+          elif (($j.payload.type?) // "") == "user_message" then
+            ($j.timestamp | sub("\\.[0-9]+Z$";"Z") | fromdateiso8601) as $t
+            | select($t >= $since)
+            | (($j.payload.message) // "") as $m
+            | select(($m | length) > 0)
+            | [$f, "msg", ($t|tostring), ($t|strflocaltime("%H")),
+               ($t|strflocaltime("%Y-%m-%d")), ($m|length|tostring), $m] | @tsv
+          else empty end' 2>/dev/null \
+    | awk -F'\t' 'BEGIN { OFS="\t" }
+        $2 == "meta" { cwd[$1] = $3; next }
+        $2 == "msg" {
+          p = ($1 in cwd) ? cwd[$1] : "?"
+          n = split(p, a, "/"); base = a[n]
+          if (base ~ /^(app|apps|web|src|ios|android|packages|server|client|frontend|backend|api|lib)$/ && n > 1)
+            base = a[n-1] "/" base
+          sid = $1; sub(/^.*\//, "", sid); sub(/\.jsonl$/, "", sid)
+          print $3, $4, $5, base, sid, $6, $7, "codex"
+        }' > "$TSV.codex"
+  grep -c . "$TSV.codex" 2>/dev/null || true
 }
 
 # 빠른 길: 사람이 타이핑한 지시만 grep 으로 미리 걸러낸다 (931MB 를 5초에 훑는다)
-N=$(extract '.promptSource=="typed"' '"promptSource":"typed"')
 BASIS="직접 타이핑한 지시만 골랐다"
-if [ "${N:-0}" -eq 0 ]; then
-  N=$(extract '(.origin.kind=="human") or (.promptSource==null and (.message.content|startswith("<")|not) and (.isSidechain|not))' '')
-  BASIS="typed 표시가 없어 완화된 기준으로 골랐다. 도구 출력이 섞일 수 있다"
+if [ "$HAS_CLAUDE" -eq 1 ]; then
+  NC=$(extract '.promptSource=="typed"' '"promptSource":"typed"')
+  if [ "${NC:-0}" -eq 0 ]; then
+    NC=$(extract '(.origin.kind=="human") or (.promptSource==null and (.message.content|startswith("<")|not) and (.isSidechain|not))' '')
+    [ "${NC:-0}" -gt 0 ] && BASIS="typed 표시가 없어 완화된 기준으로 골랐다. 도구 출력이 섞일 수 있다"
+  fi
+else
+  : > "$TSV.claude"; NC=0
 fi
+
+NX=$(extract_codex)
+
+cat "$TSV.claude" "$TSV.codex" 2>/dev/null | sort -n -k1,1 > "$TSV"
+N=$(grep -c . "$TSV" 2>/dev/null || true)
 
 if [ "${N:-0}" -eq 0 ]; then
   echo "세어볼 지시가 없다. 세션 기록이 비어 있거나 형식이 다르다." >&2
   exit 1
 fi
 
-# 지시 본문만 따로 빼둔다 (말버릇 집계용)
-cut -f7- "$TSV" > "$TSV.w"
+# 지시 본문만 따로 빼둔다 (말버릇 집계용). 도구 열이 8번이라 본문은 7번 하나다.
+cut -f7 "$TSV" > "$TSV.w"
 
 # 비율을 정수 퍼센트로
 pct() { awk -v a="$1" -v b="$2" 'BEGIN { printf "%d", (b>0 ? a*100/b + 0.5 : 0) }'; }
@@ -125,7 +194,10 @@ echo "# 프롬프트 지표"
 echo
 echo "- 구간: ${FIRST} ~ ${LAST}${DAYS:+ (최근 ${DAYS}일)}"
 echo "- 표본: ${BASIS}"
-echo "- 지시 ${N}건 · 세션 ${SESSIONS}개 · 활동한 날 ${DAYSACT}일 · 저장소 ${PROJECTS}개"
+echo "- 지시 ${N}건 (Claude Code ${NC:-0} · Codex ${NX:-0}) · 세션 ${SESSIONS}개 · 활동한 날 ${DAYSACT}일 · 저장소 ${PROJECTS}개"
+if [ "$N" -lt 100 ]; then
+  echo "- 표본 주의: 지시가 100건 미만이라 유형은 임시 결과다. 기록이 더 쌓인 뒤 다시 잰다"
+fi
 
 echo
 echo "## 말수"
@@ -156,6 +228,30 @@ echo "- 물음표가 있는 지시: $(pct "$QMARK" "$N")% (${QMARK}건)"
 echo "- 확인·검증을 요청한 지시: $(pct "$CHECK" "$N")% (${CHECK}건)"
 echo "- 칭찬·수락 표현: $(pct "$PRAISE" "$N")% (${PRAISE}건)"
 echo "- 질책·되돌리기 표현: $(pct "$SCOLD" "$N")% (${SCOLD}건)"
+
+echo
+echo "## 도구별"
+echo
+if [ "$(cut -f8 "$TSV" | sort -u | grep -c . || true)" -lt 2 ]; then
+  echo "한 도구의 기록만 있다. 비교할 대상이 없다."
+else
+  echo "같은 사람이 도구마다 다르게 말하는지 본다."
+  echo
+  for tool in claude codex; do
+    tn=$(awk -F'\t' -v t="$tool" '$8 == t' "$TSV" | grep -c . || true)
+    [ "$tn" -eq 0 ] && continue
+    tmed=$(awk -F'\t' -v t="$tool" '$8 == t && $6 <= 2000 { print $6 }' "$TSV" | sort -n \
+           | awk '{ a[NR]=$1 } END { print (NR>0 ? a[int(NR/2)+1] : 0) }')
+    tq=$(awk -F'\t' -v t="$tool" '$8 == t { print $7 }' "$TSV" | grep -cE '\?|？' || true)
+    tchk=$(awk -F'\t' -v t="$tool" '$8 == t { print $7 }' "$TSV" \
+           | grep -cE '확인|맞아|맞나|맞지|왜 |왜안|왜 안|진짜\?|정말|검증|봐줘|보여줘' || true)
+    tnight=$(awk -F'\t' -v t="$tool" '$8 == t && $2 >= "00" && $2 <= "05"' "$TSV" | grep -c . || true)
+    if [ "$tool" = "claude" ]; then label="Claude Code"; else label="Codex"; fi
+    echo "- ${label}: 지시 ${tn}건 · 중앙값 ${tmed}자 · 물음표 $(pct "$tq" "$tn")% · 확인 요청 $(pct "$tchk" "$tn")% · 새벽 $(pct "$tnight" "$tn")%"
+  done
+  echo
+  echo "차이가 크면 그 자체가 결과다. 도구마다 맡기는 일이 다르다는 뜻이다."
+fi
 
 echo
 echo "## 활동 범위"

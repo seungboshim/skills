@@ -99,5 +99,12 @@ bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/codex" \
   --source codex --out "$TMP/out.md" >/dev/null
 check "--source codex 는 Codex 만 센다" "지시 2건 (Claude Code 0 · Codex 2)"
 
+if bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/no-codex" \
+     --today --days 7 >/dev/null 2>&1; then
+  echo "  FAIL --today 와 --days 를 같이 받았다"; FAIL=1
+else
+  echo "  ok   --today 와 --days 를 같이 쓰면 거부한다"
+fi
+
 if [ "$FAIL" -eq 0 ]; then echo "전부 통과"; else echo "실패 있음"; fi
 exit "$FAIL"

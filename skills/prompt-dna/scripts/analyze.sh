@@ -5,7 +5,8 @@
 # 읽기 전용이다. 원문 지시는 출력하지 않는다. 세어본 수치와 짧은 말버릇만 낸다.
 #
 #   ./analyze.sh                     # 전체 이력, 찾을 수 있는 도구 전부
-#   ./analyze.sh --days 30           # 최근 30일만
+#   ./analyze.sh --days 7            # 최근 7일
+#   ./analyze.sh --today             # 오늘만 (새벽 5시에 하루를 끊는다)
 #   ./analyze.sh --source claude     # 한 도구만 (all | claude | codex)
 #   ./analyze.sh --out /tmp/dna.md   # 파일로 저장하고 경로만 출력
 #
@@ -15,6 +16,7 @@ set -uo pipefail
 export LC_ALL="${LC_ALL:-ko_KR.UTF-8}"
 
 DAYS=""
+TODAY=0
 OUT=""
 SOURCE="all"
 PROJ="$HOME/.claude/projects"
@@ -23,6 +25,7 @@ CODEX="$HOME/.codex"
 while [ $# -gt 0 ]; do
   case "$1" in
     --days) DAYS="${2:-}"; shift 2 ;;
+    --today) TODAY=1; shift ;;
     --out) OUT="${2:-}"; shift 2 ;;
     --root) PROJ="${2:-}"; shift 2 ;;
     --codex-root) CODEX="${2:-}"; shift 2 ;;
@@ -41,6 +44,10 @@ if [ -n "$DAYS" ] && ! [[ "$DAYS" =~ ^[1-9][0-9]*$ ]]; then
   echo "--days 는 1 이상의 정수여야 한다: $DAYS" >&2
   exit 2
 fi
+if [ -n "$DAYS" ] && [ "$TODAY" -eq 1 ]; then
+  echo "--days 와 --today 는 같이 못 쓴다" >&2
+  exit 2
+fi
 
 command -v jq >/dev/null 2>&1 || { echo "jq 가 필요하다: brew install jq" >&2; exit 1; }
 
@@ -54,7 +61,17 @@ fi
 
 NOW=$(date +%s)
 SINCE=0
-[ -n "$DAYS" ] && SINCE=$(( NOW - DAYS * 86400 ))
+WINDOW="전체 이력"
+if [ -n "$DAYS" ]; then
+  SINCE=$(( NOW - DAYS * 86400 ))
+  WINDOW="최근 ${DAYS}일"
+elif [ "$TODAY" -eq 1 ]; then
+  # 하루는 새벽 5시에 끊는다. 새벽 3시 작업은 어제 것으로 본다 (truman 과 같은 규칙).
+  SINCE=$(date -j -f '%Y-%m-%d %H:%M:%S' "$(date +%Y-%m-%d) 05:00:00" +%s 2>/dev/null \
+          || date -d "$(date +%Y-%m-%d) 05:00:00" +%s)
+  [ "$NOW" -lt "$SINCE" ] && SINCE=$(( SINCE - 86400 ))
+  WINDOW="오늘 (새벽 5시 기준)"
+fi
 
 # 로컬 시간대 보정값. 연속 작업일을 세는 데 쓴다.
 TZOFF=$(date +%z | awk '{ s=substr($0,1,1); h=substr($0,2,2)+0; m=substr($0,4,2)+0;
@@ -192,7 +209,7 @@ emit() {
 
 echo "# 프롬프트 지표"
 echo
-echo "- 구간: ${FIRST} ~ ${LAST}${DAYS:+ (최근 ${DAYS}일)}"
+echo "- 구간: ${WINDOW} — 기록 ${FIRST} ~ ${LAST}"
 echo "- 표본: ${BASIS}"
 echo "- 지시 ${N}건 (Claude Code ${NC:-0} · Codex ${NX:-0}) · 세션 ${SESSIONS}개 · 활동한 날 ${DAYSACT}일 · 저장소 ${PROJECTS}개"
 if [ "$N" -lt 100 ]; then

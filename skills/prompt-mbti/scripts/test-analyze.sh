@@ -151,7 +151,7 @@ if command -v python3 >/dev/null 2>&1; then
   bash "$HERE/render.sh" "$TMP/out.md" --out "$TMP/card.html" >/dev/null 2>&1
   echo
   echo "카드를 만들었을 때"
-  if grep -q '앞으로는 이렇게 말해보세요' "$TMP/card.html" 2>/dev/null; then
+  if grep -q '하네스를 이렇게 바꿔보세요' "$TMP/card.html" 2>/dev/null; then
     echo "  ok   코칭 블록이 붙는다"
   else
     echo "  FAIL 코칭 블록이 없다"; FAIL=1

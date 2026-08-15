@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>프롬프트 DNA</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 1440px; height: 960px; overflow: hidden; }
+    body {
+      color: #17130f;
+      background:
+        radial-gradient(circle at 92% 10%, rgba(255, 112, 38, .30), transparent 30%),
+        radial-gradient(circle at 8% 92%, rgba(222, 255, 94, .42), transparent 34%),
+        #f4efe6;
+      font-family: "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", sans-serif;
+    }
+    main { position: relative; height: 100%; padding: 68px 76px 58px; }
+    .grain {
+      position: absolute; inset: 0; pointer-events: none; opacity: .22;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.13'/%3E%3C/svg%3E");
+    }
+    .top { display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1; }
+    .badge {
+      display: inline-flex; gap: 11px; align-items: center; padding: 10px 15px;
+      border: 2px solid #17130f; border-radius: 999px; font-size: 16px; font-weight: 800;
+      letter-spacing: .08em; text-transform: uppercase; background: rgba(255,255,255,.46);
+    }
+    .badge i { width: 10px; height: 10px; background: #ff641e; border-radius: 50%; }
+    .sample { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 18px; font-weight: 700; }
+    .hero { position: relative; z-index: 1; margin-top: 46px; }
+    h1 { margin: 0; font-size: 116px; line-height: .94; letter-spacing: -.075em; font-weight: 950; }
+    h1 span { color: #ff5a17; }
+    .lede { margin: 24px 0 0; font-size: 31px; font-weight: 750; letter-spacing: -.035em; }
+    .lede strong { padding: 2px 8px 5px; background: #17130f; color: #f4efe6; }
+    .content { position: relative; z-index: 1; display: grid; grid-template-columns: 1.1fr .9fr; gap: 28px; margin-top: 50px; }
+    .genotype {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 22px;
+      background: #17130f; color: #fff; border-radius: 32px; box-shadow: 0 16px 0 rgba(23,19,15,.12);
+    }
+    .gene { min-height: 218px; padding: 20px 17px; border: 1px solid rgba(255,255,255,.20); border-radius: 20px; }
+    .gene:nth-child(1) { background: #ff641e; }
+    .gene:nth-child(2) { background: #f5b54c; color: #17130f; }
+    .gene:nth-child(3) { background: #dfff5e; color: #17130f; }
+    .gene:nth-child(4) { background: #e7dbff; color: #17130f; }
+    .gene b { display: block; font: 900 78px/.9 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .gene strong { display: block; margin-top: 26px; font-size: 21px; }
+    .gene small { display: block; margin-top: 6px; font-size: 15px; line-height: 1.35; opacity: .78; }
+    .result { padding: 31px 34px; border: 2px solid #17130f; border-radius: 32px; background: rgba(255,255,255,.58); }
+    .result .kicker { font: 800 15px/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .12em; }
+    .result h2 { margin: 13px 0 19px; font-size: 47px; line-height: 1; letter-spacing: -.05em; }
+    .quote { margin: 0; padding-top: 18px; border-top: 2px solid #17130f; font-size: 25px; line-height: 1.35; font-weight: 760; letter-spacing: -.025em; }
+    .quote mark { color: #17130f; background: #dfff5e; padding: 0 4px 3px; }
+    footer {
+      position: absolute; z-index: 1; left: 76px; right: 76px; bottom: 44px;
+      display: flex; justify-content: space-between; align-items: flex-end;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    footer strong { font-size: 18px; }
+    footer span { font-size: 15px; opacity: .7; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="grain"></div>
+    <header class="top">
+      <div class="badge"><i></i> Real behavior logs · zero questionnaires</div>
+      <div class="sample">1,769 prompts · 76 sessions · 29 repos · 6.5 sec</div>
+    </header>
+
+    <section class="hero">
+      <h1>프롬프트 <span>DNA</span></h1>
+      <p class="lede">성격 검사는 <strong>묻고</strong>, 이 스킬은 <strong>센다.</strong></p>
+    </section>
+
+    <section class="content">
+      <div class="genotype" aria-label="LDTW 네 축">
+        <article class="gene"><b>L</b><strong>장문형</strong><small>중앙값 75자</small></article>
+        <article class="gene"><b>D</b><strong>주행성</strong><small>새벽 1%</small></article>
+        <article class="gene"><b>T</b><strong>위임형</strong><small>확인 요청 15%</small></article>
+        <article class="gene"><b>W</b><strong>산개형</strong><small>최다 저장소 46%</small></article>
+      </div>
+      <article class="result">
+        <div class="kicker">YOUR TYPE · LDTW</div>
+        <h2>총괄 기획자</h2>
+        <p class="quote">긴 설명을 쓰는 사람이<br>승인은 <mark>ㄱㄱ 72회</mark>, 두 글자로 한다.</p>
+      </article>
+    </section>
+
+    <footer>
+      <strong>원문 0줄 · 네트워크 0회 · bash + jq로 재현</strong>
+      <span>seungboshim / prompt-dna v1.0</span>
+    </footer>
+  </main>
+</body>
+</html>

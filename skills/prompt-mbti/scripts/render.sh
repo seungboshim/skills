@@ -101,7 +101,7 @@ if coach_path and os.path.exists(coach_path):
         line = re.search(r'^> (?:\*\*이렇게 말해보세요\*\*\n> )?(.+)$', body, re.M)
         quote = re.findall(r'^> (.+)$', body, re.M)
         say = quote[-1] if quote else ""
-        after = re.search(r'^- after: (.+)$', body, re.M)
+        after = re.search(r'^- 실행: (.+)$', body, re.M)
         coach_items.append((f"{letter} {m.group(1)}", say, after.group(1) if after else ""))
 coach_html = "".join(
     f'<div class="co"><span class="tag">{e(t)}</span>'
@@ -188,7 +188,7 @@ footer{{margin-top:14px;color:var(--dim);font-size:11.5px;display:flex;justify-c
 <h2 style="margin-top:20px">말의 온도</h2>
 <div class="tone"><b>질책 {e(scold)}%</b> &nbsp;대&nbsp; <b>칭찬 {e(praise)}%</b></div></div></div>
 <hr><h2>어디서 말했나</h2>{chips(projs)}
-{f'<hr><h2>앞으로는 이렇게 말해보세요</h2>{coach_html}' if coach_html else ''}
+{f'<hr><h2>하네스를 이렇게 바꿔보세요</h2>{coach_html}' if coach_html else ''}
 <hr><footer><span>prompt-mbti</span><span>원문 지시는 이 카드에 없다</span></footer>
 </body></html>""")
 print(dst)

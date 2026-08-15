@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><title>프롬프트 MBTI — LDTW</title><style>
+:root{--bg:#f4ece0;--pa:#ece0cd;--fg:#4a3728;--dim:#9b8straight;--dim:#9a8straight}
+:root{--dim:#9a8булlace}
+</style><style>
+:root{--bg:#f4ece0;--fg:#43301f;--dim:#95795c;--line:#d8c7ac;--ac:#a2542a;--ac2:#7d6a4f}
+*{box-sizing:border-box}
+body{margin:0;width:960px;background:var(--bg);color:var(--fg);padding:52px 56px;
+font-family:"SF Pro Display",Pretendard,"Apple SD Gothic Neo",Inter,sans-serif;position:relative}
+body::before,body::after{content:"";position:absolute;width:34px;height:34px;border:2px solid var(--ac);opacity:.5}
+body::before{top:18px;left:20px;border-right:0;border-bottom:0}
+body::after{bottom:18px;right:20px;border-left:0;border-top:0}
+.hd{display:flex;align-items:flex-end;justify-content:space-between;gap:18px}
+h1{margin:0;font-size:78px;letter-spacing:.1em;line-height:1;color:var(--fg)}
+h1 small{display:block;font-size:21px;letter-spacing:0;color:var(--ac);margin-top:10px;font-weight:600}
+.meta{text-align:right;color:var(--dim);font-size:12px;line-height:1.8;flex:0 0 auto;white-space:nowrap}
+.warn{color:var(--ac);font-size:12.5px;margin-top:8px}
+hr{border:0;border-top:1px solid var(--line);margin:26px 0 0;position:relative}
+hr::after{content:"";position:absolute;right:0;top:-3px;width:5px;height:5px;
+background:var(--ac);transform:rotate(45deg)}
+hr::before{content:"";position:absolute;left:0;top:-3px;width:5px;height:5px;
+background:var(--ac);transform:rotate(45deg)}
+h2{font-size:11.5px;color:var(--dim);letter-spacing:.2em;margin:16px 0 14px;font-weight:700}
+.ax{display:flex;align-items:center;gap:12px;margin:11px 0;font-size:13px}
+.ax .k{width:38px;color:var(--dim);font-weight:600}
+.ax .pole{width:76px;color:var(--ac2);font-size:12px;text-align:right}
+.ax .pole.r{text-align:left}
+.ax .track{flex:1;height:3px;background:var(--line);position:relative;border-radius:2px}
+.ax .track i{position:absolute;top:-5px;width:13px;height:13px;background:var(--ac);
+border-radius:50%;transform:translateX(-50%);box-shadow:0 0 0 4px var(--bg)}
+.ax .val{width:120px;text-align:right;color:var(--fg);font-size:12.5px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-weight:600;padding:6px 0;width:120px}
+td{padding:6px 0;color:var(--ac2)}
+.bar{display:inline-block;width:96px;height:6px;background:var(--line);border-radius:3px;
+overflow:hidden;vertical-align:middle;margin-right:8px}
+.bar i{display:block;height:100%;background:var(--ac)} .bar .b2{background:var(--ac2)}
+.chip{display:inline-block;border:1px solid var(--line);border-radius:2px;background:#0000000a;
+padding:5px 11px;margin:0 7px 8px 0;font-size:12.5px}
+.chip i{font-style:normal;color:var(--ac);margin-left:8px;font-size:11.5px}
+.cols{display:flex;gap:44px} .cols>div{flex:1}
+.tone{font-size:14px;color:var(--ac2)} .tone b{color:var(--ac);font-size:16px}
+.co{margin:14px 0} .co .tag{display:inline-block;font-size:11px;letter-spacing:.1em;
+color:var(--ac);border:1px solid var(--ac);border-radius:2px;padding:2px 7px;margin-bottom:8px}
+.co .say{font-size:14px;line-height:1.65;color:var(--fg)}
+.co .ex{margin-top:6px;font-size:12.5px;color:var(--ac2);border-left:2px solid var(--line);padding-left:10px}
+.ch{width:92px;height:92px;object-fit:contain;flex:0 0 auto;margin-bottom:4px}
+footer{margin-top:14px;color:var(--dim);font-size:11.5px;display:flex;justify-content:space-between}
+</style></head><body>
+<div class="hd"><h1>LDTW<small>총괄 기획자</small></h1><img class="ch" src="file:///Users/seungboshim/Projects/personal/skills/skills/prompt-mbti/scripts/../assets/characters/LDTW.png" alt="">
+<div class="meta">전체 이력 — 기록 2026-03-06 ~ 2026-08-15<br>3000건 (Claude Code 1795 · Codex 1204 · Hermes 1) · 세션 238개 · 활동한 날 68일 · 저장소 43개</div></div>
+<hr><h2>성향</h2>
+<div class="ax">
+      <span class="k">말수</span>
+      <span class="pole">S 단문형</span>
+      <span class="track"><i style="left:60%"></i></span>
+      <span class="pole r">L 장문형</span>
+      <span class="val">중앙값 72자</span></div><div class="ax">
+      <span class="k">시간</span>
+      <span class="pole">D 주행성</span>
+      <span class="track"><i style="left:10%"></i></span>
+      <span class="pole r">N 야행성</span>
+      <span class="val">새벽 3%</span></div><div class="ax">
+      <span class="k">태도</span>
+      <span class="pole">T 위임형</span>
+      <span class="track"><i style="left:36%"></i></span>
+      <span class="pole r">V 검증형</span>
+      <span class="val">확인 요청 18%</span></div><div class="ax">
+      <span class="k">범위</span>
+      <span class="pole">W 산개형</span>
+      <span class="track"><i style="left:41%"></i></span>
+      <span class="pole r">F 집중형</span>
+      <span class="val">최다 저장소 41%</span></div>
+<hr><h2>도구별 · 같은 사람이 도구마다 다르게 말한다</h2><table><tr><th></th><td>지시</td><td>중앙값</td><td>물음표</td><td>확인 요청</td><td>새벽</td></tr><tr><th>Claude Code</th><td>1795건</td><td>75자</td><td><span class="bar"><i style="width:59%"></i></span>59%</td><td><span class="bar"><i class="b2" style="width:15%"></i></span>15%</td><td>1%</td></tr><tr><th>Codex</th><td>1204건</td><td>68자</td><td><span class="bar"><i style="width:42%"></i></span>42%</td><td><span class="bar"><i class="b2" style="width:22%"></i></span>22%</td><td>7%</td></tr><tr><th>Hermes</th><td>1건</td><td>43자</td><td><span class="bar"><i style="width:100%"></i></span>100%</td><td><span class="bar"><i class="b2" style="width:0%"></i></span>0%</td><td>0%</td></tr></table>
+<hr><div class="cols">
+<div><h2>자주 쓴 말</h2><span class="chip">현재<i>590</i></span><span class="chip">없음<i>488</i></span><span class="chip">다시<i>408</i></span><span class="chip">지금<i>387</i></span><span class="chip">그리고<i>338</i></span><span class="chip">확인<i>331</i></span></div>
+<div><h2>자모</h2><span class="chip">ㄱㄱ<i>83</i></span><span class="chip">ㅇㅋ<i>62</i></span><span class="chip">ㄴㄴ<i>37</i></span><span class="chip">ㄹㅇ<i>19</i></span><span class="chip">ㅇㅇ<i>11</i></span>
+<h2 style="margin-top:20px">말의 온도</h2>
+<div class="tone"><b>질책 25%</b> &nbsp;대&nbsp; <b>칭찬 9%</b></div></div></div>
+<hr><h2>어디서 말했나</h2><span class="chip">inboxx-app<i>1229</i></span><span class="chip">feat-monorepo-step-a<i>302</i></span><span class="chip">cdrv-frontend<i>259</i></span><span class="chip">feat-category-thread<i>183</i></span><span class="chip">inboxx-landing<i>140</i></span>
+<hr><h2>하네스를 이렇게 바꿔보세요</h2><div class="co"><span class="tag">D 주행성</span><div class="say">점검을 의지가 아니라 절차로 만듭니다. 사이클마다 멈추는 지점을 둡니다.</div><div class="ex">단계마다 확인 지점을 두는 스킬(`feature-flow` 류)을 쓰거나,</div></div><div class="co"><span class="tag">T 위임형</span><div class="say">확인을 사람이 아니라 기계가 하게 합니다. 맡기는 속도는 그대로 두고 안전망만 답니다.</div><div class="ex">매번 눈으로 보던 것을 훅이나 테스트로 내립니다.</div></div>
+<hr><footer><span>prompt-mbti</span><span>원문 지시는 이 카드에 없다</span></footer>
+</body></html>

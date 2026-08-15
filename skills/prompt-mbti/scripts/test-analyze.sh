@@ -129,5 +129,41 @@ else
   echo "  건너뜀 sqlite3 이 없어 Hermes 구간을 확인하지 못했다"
 fi
 
+# ── 상한
+bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/codex" --hermes-root "$TMP/no-hermes" \
+  --max 3 --out "$TMP/out.md" >/dev/null
+echo
+echo "상한을 걸었을 때"
+check "최근 3건만 남는다"        "지시 3건"
+check "몇 건을 뺐는지 밝힌다"    "오래된 4건을 뺐다"
+
+if bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/no-codex" \
+     --hermes-root "$TMP/no-hermes" --max 0 >/dev/null 2>&1; then
+  echo "  FAIL --max 0 을 받았다"; FAIL=1
+else
+  echo "  ok   --max 0 을 거부한다"
+fi
+
+# ── 코칭이 카드에 붙는가
+if command -v python3 >/dev/null 2>&1; then
+  bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/codex" \
+    --hermes-root "$TMP/no-hermes" --out "$TMP/out.md" >/dev/null
+  bash "$HERE/render.sh" "$TMP/out.md" --out "$TMP/card.html" >/dev/null 2>&1
+  echo
+  echo "카드를 만들었을 때"
+  if grep -q '앞으로는 이렇게 말해보세요' "$TMP/card.html" 2>/dev/null; then
+    echo "  ok   코칭 블록이 붙는다"
+  else
+    echo "  FAIL 코칭 블록이 없다"; FAIL=1
+  fi
+  # 카드 HTML 은 한 줄이라 grep -c 로는 못 센다. 줄을 쪼갠 뒤 센다.
+  n=$(tr '<' '\n' < "$TMP/card.html" 2>/dev/null | grep -c 'class="tag"' || true)
+  if [ "$n" -eq 2 ]; then
+    echo "  ok   코칭은 축 두 개만 나온다"
+  else
+    echo "  FAIL 코칭 축이 ${n}개다 (2개여야 한다)"; FAIL=1
+  fi
+fi
+
 if [ "$FAIL" -eq 0 ]; then echo "전부 통과"; else echo "실패 있음"; fi
 exit "$FAIL"

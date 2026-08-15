@@ -8,6 +8,7 @@
 #   ./analyze.sh --days 7            # 최근 7일
 #   ./analyze.sh --today             # 오늘만 (새벽 5시에 하루를 끊는다)
 #   ./analyze.sh --source claude     # 한 도구만 (all | claude | codex | hermes)
+#   ./analyze.sh --max 10000         # 분석 상한 (기본 3000, 최근 것부터 센다)
 #   ./analyze.sh --out /tmp/dna.md   # 파일로 저장하고 경로만 출력
 #
 # 읽는 곳: ~/.claude/projects (Claude Code), ~/.codex/sessions (Codex CLI),
@@ -18,6 +19,7 @@ export LC_ALL="${LC_ALL:-ko_KR.UTF-8}"
 
 DAYS=""
 TODAY=0
+MAX=3000
 OUT=""
 SOURCE="all"
 PROJ="$HOME/.claude/projects"
@@ -28,6 +30,7 @@ while [ $# -gt 0 ]; do
   case "$1" in
     --days) DAYS="${2:-}"; shift 2 ;;
     --today) TODAY=1; shift ;;
+    --max) MAX="${2:-}"; shift 2 ;;
     --out) OUT="${2:-}"; shift 2 ;;
     --root) PROJ="${2:-}"; shift 2 ;;
     --codex-root) CODEX="${2:-}"; shift 2 ;;
@@ -45,6 +48,10 @@ esac
 
 if [ -n "$DAYS" ] && ! [[ "$DAYS" =~ ^[1-9][0-9]*$ ]]; then
   echo "--days 는 1 이상의 정수여야 한다: $DAYS" >&2
+  exit 2
+fi
+if ! [[ "$MAX" =~ ^[1-9][0-9]*$ ]]; then
+  echo "--max 는 1 이상의 정수여야 한다: $MAX" >&2
   exit 2
 fi
 if [ -n "$DAYS" ] && [ "$TODAY" -eq 1 ]; then
@@ -188,7 +195,20 @@ NX=$(extract_codex)
 NH=$(extract_hermes)
 
 cat "$TSV.claude" "$TSV.codex" "$TSV.hermes" 2>/dev/null | sort -n -k1,1 > "$TSV"
+
+# 기록이 아주 많으면 최근 것만 본다. 오래된 습관보다 지금 습관이 궁금하기 때문이다.
+ALL=$(grep -c . "$TSV" 2>/dev/null || true)
+TRIM=0
+if [ "${ALL:-0}" -gt "$MAX" ]; then
+  TRIM=$(( ALL - MAX ))
+  tail -n "$MAX" "$TSV" > "$TSV.cut" && mv "$TSV.cut" "$TSV"
+fi
+
+# 자른 뒤에 다시 센다. 도구별 건수가 잘린 결과와 맞아야 한다.
 N=$(grep -c . "$TSV" 2>/dev/null || true)
+NC=$(awk -F'\t' '$8 == "claude"' "$TSV" | grep -c . || true)
+NX=$(awk -F'\t' '$8 == "codex"' "$TSV" | grep -c . || true)
+NH=$(awk -F'\t' '$8 == "hermes"' "$TSV" | grep -c . || true)
 
 if [ "${N:-0}" -eq 0 ]; then
   echo "세어볼 지시가 없다. 세션 기록이 비어 있거나 형식이 다르다." >&2
@@ -245,6 +265,7 @@ echo
 echo "- 구간: ${WINDOW} — 기록 ${FIRST} ~ ${LAST}"
 echo "- 표본: ${BASIS}"
 echo "- 지시 ${N}건 (Claude Code ${NC:-0} · Codex ${NX:-0} · Hermes ${NH:-0}) · 세션 ${SESSIONS}개 · 활동한 날 ${DAYSACT}일 · 저장소 ${PROJECTS}개"
+[ "${TRIM:-0}" -gt 0 ] && echo "- 상한 ${MAX}건에 맞춰 오래된 ${TRIM}건을 뺐다. 전부 보려면 --max 를 올린다"
 if [ "$N" -lt 100 ]; then
   echo "- 표본 주의: 지시가 100건 미만이라 유형은 임시 결과다. 기록이 더 쌓인 뒤 다시 잰다"
 fi

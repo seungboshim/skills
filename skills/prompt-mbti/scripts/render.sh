@@ -69,14 +69,17 @@ name = NAMES.get(code, "미분류")
 e = html.escape
 
 # 성향 그래프. 축마다 왼쪽 끝과 오른쪽 끝을 두고 실제 값 위치에 표시를 찍는다.
-POLES = {"말수": ("S 단문형","L 장문형",120), "시간": ("D 주행성","N 야행성",30),
-         "태도": ("T 위임형","V 검증형",50), "범위": ("W 산개형","F 집중형",100)}
+# (왼쪽 극, 오른쪽 극, 그래프 눈금 최대, 축 임계값)
+POLES = {"말수": ("S 단문형","L 장문형",120,60), "시간": ("D 주행성","N 야행성",30,15),
+         "태도": ("T 위임형","V 검증형",50,25), "범위": ("W 산개형","F 집중형",100,50)}
 rows = []
 lean = []
-for k, v, c, lab in axes:
-    lo, hi, full = POLES.get(k, ("","",100))
+for i, (k, v, c, lab) in enumerate(axes):
+    lo, hi, full, th = POLES.get(k, ("","",100,50))
     pos = max(4, min(96, round(num(v) / full * 100)))
-    lean.append((abs(pos - 50), c, k))
+    # 치우침은 눈금 한가운데가 아니라 축 임계값에서 얼마나 떨어졌는지로 잰다.
+    # 축마다 단위가 달라서 임계값으로 나눠 비율로 맞춘다. 동률이면 축 순서로 가른다.
+    lean.append((abs(num(v) - th) / th if th else 0, -i, c, k))
     rows.append(f'''<div class="ax">
       <span class="k">{e(k)}</span>
       <span class="pole">{e(lo)}</span>
@@ -91,7 +94,7 @@ coach_path = os.environ.get("PROMPT_MBTI_COACHING", "")
 coach_items = []
 if coach_path and os.path.exists(coach_path):
     ct = open(coach_path, encoding="utf-8").read()
-    for _, letter, axis in sorted(lean, reverse=True)[:2]:
+    for _, _, letter, axis in sorted(lean, reverse=True)[:2]:
         m = re.search(r'^## ' + letter + r' (\S+) \((.+?)\)\n(.*?)(?=\n## |\Z)', ct, re.S | re.M)
         if not m: continue
         body = m.group(3)

@@ -86,6 +86,10 @@ bash "<base directory>/scripts/render.sh" /tmp/prompt-mbti.md --png
 ```
 
 HTML 과 PNG 경로를 사용자에게 알려준다. 크롬이 없으면 PNG 만 건너뛰고 HTML 은 남는다.
+
+유형 캐릭터 그림이 `assets/characters/<코드>.png` 에 있으면 카드 상단에 들어간다.
+`~/.claude/prompt-mbti/characters/` 에 같은 이름을 두면 그쪽이 이긴다. 없으면 그 자리를
+비우고 카드는 그대로 나온다. **그림이 없다고 멈추지 않는다.**
 카드 레이아웃과 색은 `render.sh` 안에 고정돼 있다. **매번 같은 모양으로 나와야 하므로
 디자인을 그때그때 바꾸지 않는다.**
 

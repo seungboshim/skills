@@ -29,6 +29,7 @@ command -v python3 >/dev/null 2>&1 || { echo "python3 가 필요하다" >&2; exi
 # 코칭 문서는 이 스크립트 옆에서 찾는다. 지표 파일 위치와는 상관없다.
 HERE="$(cd "$(dirname "$0")" && pwd)"
 export PROMPT_MBTI_COACHING="$HERE/../references/coaching.md"
+export PROMPT_MBTI_CHARACTERS="$HERE/../assets/characters"
 
 python3 - "$IN" "$OUT" <<'PY'
 import re, sys, html
@@ -106,8 +107,14 @@ coach_html = "".join(
     for t, say, af in coach_items)
 
 # 유형 캐릭터가 있으면 넣는다. 없으면 자리를 비운다.
-char = os.path.expanduser(f"~/.claude/prompt-mbti/characters/{code}.png")
-char_html = f'<img class="ch" src="file://{char}" alt="">' if os.path.exists(char) else ""
+# 캐릭터는 저장소에 든 것을 먼저 쓴다. 스킬을 설치하면 같이 따라오기 때문이다.
+# 사용자가 자기 그림으로 바꾸고 싶으면 홈 디렉터리 쪽에 같은 이름으로 두면 그게 이긴다.
+char = ""
+for cand in (os.path.expanduser(f"~/.claude/prompt-mbti/characters/{code}.png"),
+             os.path.join(os.environ.get("PROMPT_MBTI_CHARACTERS", ""), f"{code}.png")):
+    if cand and os.path.exists(cand):
+        char = cand; break
+char_html = f'<img class="ch" src="file://{char}" alt="">' if char else ""
 
 tool_rows = "".join(
     f'<tr><th>{e(n)}</th><td>{e(cnt)}건</td><td>{e(med)}자</td>'

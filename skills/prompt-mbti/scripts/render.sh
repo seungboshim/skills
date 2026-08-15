@@ -57,6 +57,12 @@ def block(head, pat, n):
 habits = block(r'## 말버릇', r'^- (\S+) (\d+)회$', 6)
 jamo   = block(r'## 자모 표현', r'^- (\S+) (\d+)회$', 5)
 projs  = block(r'## 활동 범위', r'^- (\S+): (\d+)건', 5)
+toolcalls = block(r'## 작업 방식', r'^- (\S+) (\d+)회 \(\d+%\)$', 5)
+mseg   = re.search(r'## 작업 방식(.*?)(?=\n## |\Z)', t, re.S)
+mtxt   = mseg.group(1) if mseg else ""
+agent  = (re.search(r'서브에이전트에 맡긴 횟수: (\d+)회', mtxt) or [None,"0"])[1] if mseg else "0"
+skill  = (re.search(r'스킬을 부른 횟수: (\d+)회', mtxt) or [None,"0"])[1] if mseg else "0"
+topsk  = re.findall(r'^- (\S+) (\d+)회$', mtxt.split('많이 부른 스킬:')[-1], re.M)[:4] if '많이 부른 스킬:' in mtxt else []
 att    = dict(re.findall(r'^- (.+?): (\d+)%', t, re.M))
 praise = att.get('칭찬·수락 표현', '0'); scold = att.get('질책·되돌리기 표현', '0')
 
@@ -187,6 +193,7 @@ footer{{margin-top:14px;color:var(--dim);font-size:11.5px;display:flex;justify-c
 <div><h2>자모</h2>{chips(jamo)}
 <h2 style="margin-top:20px">말의 온도</h2>
 <div class="tone"><b>질책 {e(scold)}%</b> &nbsp;대&nbsp; <b>칭찬 {e(praise)}%</b></div></div></div>
+{f'<hr><h2>작업 방식 · 무슨 도구를 불렀나</h2>{chips(toolcalls)}<div class="tone" style="margin-top:10px">서브에이전트 <b>{e(agent)}회</b> &nbsp;·&nbsp; 스킬 <b>{e(skill)}회</b></div>{f"<div style=\"margin-top:12px\">{chips(topsk)}</div>" if topsk else ""}' if toolcalls else ''}
 <hr><h2>어디서 말했나</h2>{chips(projs)}
 {f'<hr><h2>하네스를 이렇게 바꿔보세요</h2>{coach_html}' if coach_html else ''}
 <hr><footer><span>prompt-mbti</span><span>원문 지시는 이 카드에 없다</span></footer>
@@ -207,7 +214,7 @@ if [ "$PNG" -eq 1 ]; then
   else
     PNGOUT="${OUT%.html}.png"
     "$CHROME" --headless --disable-gpu --hide-scrollbars \
-      --force-device-scale-factor=2 --window-size=960,1080 \
+      --force-device-scale-factor=2 --window-size=960,1260 \
       --screenshot="$PNGOUT" "file://$OUT" >/dev/null 2>&1
     [ -f "$PNGOUT" ] && echo "$PNGOUT" || echo "PNG 렌더에 실패했다" >&2
   fi

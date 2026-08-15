@@ -9,6 +9,7 @@
 #   ./analyze.sh --today             # 오늘만 (새벽 5시에 하루를 끊는다)
 #   ./analyze.sh --source claude     # 한 도구만 (all | claude | codex | hermes)
 #   ./analyze.sh --max 10000         # 분석 상한 (기본 3000, 최근 것부터 센다)
+#   ./analyze.sh --no-tools          # 도구 호출 집계를 건너뛴다 (더 빠르다)
 #   ./analyze.sh --out /tmp/dna.md   # 파일로 저장하고 경로만 출력
 #
 # 읽는 곳: ~/.claude/projects (Claude Code), ~/.codex/sessions (Codex CLI),
@@ -20,6 +21,7 @@ export LC_ALL="${LC_ALL:-ko_KR.UTF-8}"
 DAYS=""
 TODAY=0
 MAX=3000
+TOOLSCAN=1
 OUT=""
 SOURCE="all"
 PROJ="$HOME/.claude/projects"
@@ -31,6 +33,7 @@ while [ $# -gt 0 ]; do
     --days) DAYS="${2:-}"; shift 2 ;;
     --today) TODAY=1; shift ;;
     --max) MAX="${2:-}"; shift 2 ;;
+    --no-tools) TOOLSCAN=0; shift ;;
     --out) OUT="${2:-}"; shift 2 ;;
     --root) PROJ="${2:-}"; shift 2 ;;
     --codex-root) CODEX="${2:-}"; shift 2 ;;
@@ -92,7 +95,7 @@ TZOFF=$(date +%z | awk '{ s=substr($0,1,1); h=substr($0,2,2)+0; m=substr($0,4,2)
                           v=h*3600+m*60; print (s=="-" ? -v : v) }')
 
 TSV=$(mktemp -t promptmbti)
-trap 'rm -f "$TSV" "$TSV.w" "$TSV.h" "$TSV.claude" "$TSV.codex" "$TSV.hermes"' EXIT
+trap 'rm -f "$TSV" "$TSV.w" "$TSV.h" "$TSV.claude" "$TSV.codex" "$TSV.hermes" "$TSV.t"' EXIT
 
 JQ_PROG='
   fromjson?
@@ -215,6 +218,28 @@ if [ "${N:-0}" -eq 0 ]; then
   exit 1
 fi
 
+# 무슨 도구를 불렀는지 센다. 사람이 친 말이 아니라 실제 작업 방식이다.
+# Claude Code 전사에만 tool_use 가 남는다. 다른 도구는 형식이 달라 아직 안 센다.
+#
+# 구간은 지시와 정확히 맞춘다. 상한으로 지시가 잘렸으면 도구도 같은 시각부터 센다.
+# 안 그러면 "지시 한 건당 몇 회"가 부풀려진다.
+: > "$TSV.t"
+TFROM=$(head -1 "$TSV" | cut -f1)
+[ -n "$TFROM" ] || TFROM="$SINCE"
+if [ "$HAS_CLAUDE" -eq 1 ] && [ "$TOOLSCAN" -eq 1 ]; then
+  find "$PROJ" -name '*.jsonl' -exec grep -h '"type":"tool_use"' {} + 2>/dev/null \
+    | jq -rR --argjson since "$TFROM" '
+        fromjson?
+        | select(.type=="assistant")
+        | (.timestamp | sub("\\.[0-9]+Z$";"Z") | fromdateiso8601) as $t
+        | select($t >= $since)
+        | .message.content[]?
+        | select(.type=="tool_use")
+        | [.name, ((.input.skill // .input.subagent_type // "") | tostring)]
+        | @tsv' 2>/dev/null > "$TSV.t"
+fi
+TOOLS=$(grep -c . "$TSV.t" 2>/dev/null || true)
+
 # 지시 본문만 따로 빼둔다 (말버릇 집계용). 도구 열이 8번이라 본문은 7번 하나다.
 cut -f7 "$TSV" > "$TSV.w"
 
@@ -326,6 +351,35 @@ else
   done
   echo
   echo "차이가 크면 그 자체가 결과다. 도구마다 맡기는 일이 다르다는 뜻이다."
+fi
+
+echo
+echo "## 작업 방식"
+echo
+if [ "${TOOLS:-0}" -eq 0 ]; then
+  if [ "$TOOLSCAN" -eq 0 ]; then
+    echo "도구 집계를 건너뛰었다 (--no-tools)."
+  else
+    echo "도구 호출 기록이 없다. Claude Code 전사에서만 셀 수 있다."
+  fi
+else
+  echo "도구를 ${TOOLS}회 불렀다. 지시 한 건당 $(awk -v a="$TOOLS" -v b="$N" 'BEGIN { printf "%.1f", (b>0 ? a/b : 0) }')회다."
+  echo
+  cut -f1 "$TSV.t" | sort | uniq -c | sort -rn | head -6 \
+    | while read -r c t; do echo "- ${t} ${c}회 ($(pct "$c" "$TOOLS")%)"; done
+  echo
+  AG=$(awk -F'\t' '$1 == "Agent" || $1 == "Task"' "$TSV.t" | grep -c . || true)
+  SK=$(awk -F'\t' '$1 == "Skill"' "$TSV.t" | grep -c . || true)
+  echo "- 서브에이전트에 맡긴 횟수: ${AG}회 (지시 100건당 $(awk -v a="$AG" -v b="$N" 'BEGIN { printf "%.0f", (b>0 ? a*100/b : 0) }')회)"
+  echo "- 스킬을 부른 횟수: ${SK}회 (지시 100건당 $(awk -v a="$SK" -v b="$N" 'BEGIN { printf "%.0f", (b>0 ? a*100/b : 0) }')회)"
+  if [ "$SK" -gt 0 ]; then
+    echo
+    echo "많이 부른 스킬:"
+    awk -F'\t' '$1 == "Skill" && $2 != "" { print $2 }' "$TSV.t" | sort | uniq -c | sort -rn | head -5 \
+      | while read -r c k; do echo "- ${k} ${c}회"; done
+  else
+    echo "- 스킬을 한 번도 부르지 않았다. 반복하는 절차가 있다면 아직 손으로 하고 있다는 뜻이다"
+  fi
 fi
 
 echo

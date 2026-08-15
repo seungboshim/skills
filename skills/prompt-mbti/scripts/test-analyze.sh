@@ -106,6 +106,23 @@ else
   echo "  ok   --today 와 --days 를 같이 쓰면 거부한다"
 fi
 
+# ── 작업 방식 (도구 호출)
+CT="$TMP/projects/-tmp-fake"
+printf '{"type":"assistant","timestamp":"2026-07-01T02:30:00.000Z","message":{"content":[{"type":"tool_use","name":"Bash","input":{}},{"type":"tool_use","name":"Skill","input":{"skill":"worklog"}}]}}\n' >> "$CT/session.jsonl"
+
+bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/no-codex" --hermes-root "$TMP/no-hermes" \
+  --out "$TMP/out.md" >/dev/null
+echo
+echo "작업 방식을 셀 때"
+check "도구 호출 수를 센다"        "도구를 2회 불렀다"
+check "도구 이름을 나눠 센다"      "- Bash 1회"
+check "스킬 호출을 따로 센다"      "스킬을 부른 횟수: 1회"
+check "부른 스킬 이름이 나온다"    "- worklog 1회"
+
+bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/no-codex" --hermes-root "$TMP/no-hermes" \
+  --no-tools --out "$TMP/out.md" >/dev/null
+check "--no-tools 로 끌 수 있다"   "도구 집계를 건너뛰었다"
+
 # ── Hermes 는 SQLite 하나에 넣는다. 스킬 주입과 에이전트 답변이 빠지는지 본다.
 if command -v sqlite3 >/dev/null 2>&1; then
   HM="$TMP/hermes"; mkdir -p "$HM"

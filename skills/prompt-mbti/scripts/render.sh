@@ -57,6 +57,7 @@ def block(head, pat, n):
 habits = block(r'## 말버릇', r'^- (\S+) (\d+)회$', 6)
 jamo   = block(r'## 자모 표현', r'^- (\S+) (\d+)회$', 5)
 projs  = block(r'## 활동 범위', r'^- (\S+): (\d+)건', 5)
+autos  = block(r'## 자동화 후보', r'^\* (\S+ ?\S*) (\d+)회$', 5)
 toolcalls = block(r'## 작업 방식', r'^- (\S+) (\d+)회 \(\d+%\)$', 5)
 mseg   = re.search(r'## 작업 방식(.*?)(?=\n## |\Z)', t, re.S)
 mtxt   = mseg.group(1) if mseg else ""
@@ -176,6 +177,10 @@ padding:5px 11px;margin:0 7px 8px 0;font-size:12.5px}}
 .chip i{{font-style:normal;color:var(--ac);margin-left:8px;font-size:11.5px}}
 .cols{{display:flex;gap:44px}} .cols>div{{flex:1}}
 .tone{{font-size:14px;color:var(--ac2)}} .tone b{{color:var(--ac);font-size:16px}}
+.part{{display:flex;align-items:center;gap:12px;margin:34px 0 4px}}
+.part b{{font-size:15px;letter-spacing:.16em;color:var(--ac);font-weight:700}}
+.part span{{flex:1;height:1px;background:var(--ac);opacity:.35}}
+.part i{{font-style:normal;font-size:11px;color:var(--dim);letter-spacing:.06em}}
 .co{{margin:14px 0}} .co .tag{{display:inline-block;font-size:11px;letter-spacing:.1em;
 color:var(--ac);border:1px solid var(--ac);border-radius:2px;padding:2px 7px;margin-bottom:8px}}
 .co .say{{font-size:14px;line-height:1.65;color:var(--fg)}}
@@ -185,18 +190,23 @@ footer{{margin-top:14px;color:var(--dim);font-size:11.5px;display:flex;justify-c
 </style></head><body>
 <div class="hd"><h1>{e(code)}<small>{e(name)}</small></h1>{char_html}
 <div class="meta">{e(window)}<br>{e(sample)}{f'<div class="warn">{e(warn)}</div>' if warn else ''}</div></div>
-<hr><h2>성향</h2>
+
+<div class="part"><b>STYLE</b><span></span><i>어떤 사람인가</i></div>
 {axis_html}
-{f'<hr><h2>도구별 · 같은 사람이 도구마다 다르게 말한다</h2><table><tr><th></th><td>지시</td><td>중앙값</td><td>물음표</td><td>확인 요청</td><td>새벽</td></tr>{tool_rows}</table>' if len(tools) > 1 else ''}
-<hr><div class="cols">
+
+<div class="part"><b>ANALYSIS</b><span></span><i>무엇을 얼마나 했나</i></div>
+{f'<h2>도구별 · 같은 사람이 도구마다 다르게 말한다</h2><table><tr><th></th><td class="n">지시</td><td class="n">중앙값</td><td>물음표</td><td>확인 요청</td><td class="n">새벽</td></tr>{tool_rows}</table>' if len(tools) > 1 else ''}
+{f'<h2>무슨 도구를 불렀나</h2>{chips(toolcalls)}<div class="tone" style="margin-top:10px">서브에이전트 <b>{e(agent)}회</b> &nbsp;·&nbsp; 스킬 <b>{e(skill)}회</b></div>{f"<div style=\"margin-top:12px\">{chips(topsk)}</div>" if topsk else ""}' if toolcalls else ''}
+{f'<h2>훅으로 내릴 만한 반복 명령</h2>{chips(autos)}' if autos else ''}
+<div class="cols" style="margin-top:22px">
 <div><h2>자주 쓴 말</h2>{chips(habits)}</div>
 <div><h2>자모</h2>{chips(jamo)}
 <h2 style="margin-top:20px">말의 온도</h2>
 <div class="tone"><b>질책 {e(scold)}%</b> &nbsp;대&nbsp; <b>칭찬 {e(praise)}%</b></div></div></div>
-{f'<hr><h2>작업 방식 · 무슨 도구를 불렀나</h2>{chips(toolcalls)}<div class="tone" style="margin-top:10px">서브에이전트 <b>{e(agent)}회</b> &nbsp;·&nbsp; 스킬 <b>{e(skill)}회</b></div>{f"<div style=\"margin-top:12px\">{chips(topsk)}</div>" if topsk else ""}' if toolcalls else ''}
-<hr><h2>어디서 말했나</h2>{chips(projs)}
-{f'<hr><h2>하네스를 이렇게 바꿔보세요</h2>{coach_html}' if coach_html else ''}
-<hr><footer><span>prompt-mbti</span><span>원문 지시는 이 카드에 없다</span></footer>
+<h2 style="margin-top:24px">어디서 말했나</h2>{chips(projs)}
+
+{f'<div class="part"><b>COACHING</b><span></span><i>무엇을 바꿀까</i></div>{coach_html}' if coach_html else ''}
+<footer><span>prompt-mbti</span><span>원문 지시는 이 카드에 없다</span></footer>
 </body></html>""")
 print(dst)
 PY
@@ -214,7 +224,7 @@ if [ "$PNG" -eq 1 ]; then
   else
     PNGOUT="${OUT%.html}.png"
     "$CHROME" --headless --disable-gpu --hide-scrollbars \
-      --force-device-scale-factor=2 --window-size=960,1260 \
+      --force-device-scale-factor=2 --window-size=960,1400 \
       --screenshot="$PNGOUT" "file://$OUT" >/dev/null 2>&1
     [ -f "$PNGOUT" ] && echo "$PNGOUT" || echo "PNG 렌더에 실패했다" >&2
   fi

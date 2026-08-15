@@ -402,7 +402,7 @@ else
   echo
   # 조회성 명령(git status, grep 같은 것)은 습관이지 자동화 대상이 아니다. 따로 표시한다.
   awk -F'\t' '$1 == "Bash" && $3 != "" { print $3 }' "$TSV.t" \
-    | grep -vE '^(echo|EOF|#|-|\||\}|\{|for|if|then|fi|done)' \
+    | grep -vE '^(echo|EOF|#|-|\||\}|\{|for|if|then|fi|done|cd |source |export )' \
     | sort | uniq -c | sort -rn | head -10 \
     | while read -r c cmd; do
         if echo "$cmd" | grep -qE '^(npx tsc|tsc|npm test|npm run|yarn|pnpm|jest|vitest|pytest|go test|cargo|make|eslint|prettier|ruff|mypy|bash scripts)'; then
@@ -411,6 +411,16 @@ else
           echo "- ${cmd} ${c}회"
         fi
       done
+  echo
+  echo "훅으로 내릴 만한 것:"
+  VC=$(awk -F'\t' '$1 == "Bash" && $3 != "" { print $3 }' "$TSV.t" \
+       | grep -E '^(npx tsc|tsc|npm test|npm run|yarn|pnpm|jest|vitest|pytest|go test|cargo|make|eslint|prettier|ruff|mypy|bash scripts)' \
+       | sort | uniq -c | sort -rn | head -5)
+  if [ -n "$VC" ]; then
+    printf '%s\n' "$VC" | while read -r c cmd; do echo "* ${cmd} ${c}회"; done
+  else
+    echo "* (없음)"
+  fi
 fi
 
 echo

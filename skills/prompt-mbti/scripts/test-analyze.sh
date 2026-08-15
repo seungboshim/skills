@@ -123,6 +123,16 @@ bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/no-codex" --he
   --no-tools --out "$TMP/out.md" >/dev/null
 check "--no-tools 로 끌 수 있다"   "도구 집계를 건너뛰었다"
 
+# ── 자동화 후보
+printf '{"type":"assistant","timestamp":"2026-07-01T02:40:00.000Z","message":{"content":[{"type":"tool_use","name":"Bash","input":{"command":"npx tsc --noEmit"}},{"type":"tool_use","name":"Bash","input":{"command":"cd /tmp/secret-path && ls"}}]}}\n' >> "$CT/session.jsonl"
+
+bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/no-codex" --hermes-root "$TMP/no-hermes" --no-history \
+  --out "$TMP/out.md" >/dev/null
+echo
+echo "자동화 후보를 가릴 때"
+check "검증 계열을 따로 모은다"      "* npx tsc 1회"
+absent "cd 는 후보에서 뺀다"          "cd /tmp/secret-path"
+
 # ── Hermes 는 SQLite 하나에 넣는다. 스킬 주입과 에이전트 답변이 빠지는지 본다.
 if command -v sqlite3 >/dev/null 2>&1; then
   HM="$TMP/hermes"; mkdir -p "$HM"
@@ -168,7 +178,7 @@ if command -v python3 >/dev/null 2>&1; then
   bash "$HERE/render.sh" "$TMP/out.md" --out "$TMP/card.html" >/dev/null 2>&1
   echo
   echo "카드를 만들었을 때"
-  if grep -q '하네스를 이렇게 바꿔보세요' "$TMP/card.html" 2>/dev/null; then
+  if grep -q 'COACHING' "$TMP/card.html" 2>/dev/null; then
     echo "  ok   코칭 블록이 붙는다"
   else
     echo "  FAIL 코칭 블록이 없다"; FAIL=1

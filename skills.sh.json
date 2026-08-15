@@ -31,6 +31,15 @@
       "skills": [
         "shimmy-tone"
       ]
+    },
+    {
+      "title": "Play",
+      "description": "Built for fun. The output still has a use.",
+      "skills": [
+        "truman",
+        "date-sim",
+        "prompt-dna"
+      ]
     }
   ],
   "notGrouped": "bottom"

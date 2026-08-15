@@ -77,6 +77,35 @@ Design system builder and refactorer for Tailwind CSS + Next.js projects.
 - Supports new projects (Phase 0: design prompting) and existing projects (Phase 1: style audit)
 - Ongoing audit mode for design token compliance
 
+### truman
+
+Turns today's development trail into a third-person observational-documentary episode.
+
+- Collects commits, reflog, the prompts you typed in Claude sessions, and shell history, then edits them into a script
+- Seasons and episode numbers accumulate; whatever you left unfinished becomes the next-episode teaser, tagged "third episode in a row" when it keeps showing up
+- The closing two blocks (production notes, next-episode teaser) stick to observed signals, so they work as a real retro
+- Collection is read-only and entirely local. No network calls
+
+### date-sim
+
+Runs one mock date from start to finish in chat, as conversation-habit training.
+
+- Pick difficulty, venue, and who you're meeting; it runs 8–12 turns with an affinity delta and a one-line note each turn
+- Your date has one landmine and one hidden need. The need stays hidden until the report
+- Ends with an autopsy report: how much you talked about yourself, how many questions you asked, three turning points, and exactly one thing to practice next
+- Across sessions it compares runs and flags a recurring note as a chronic habit after three appearances
+- Bland answers do not score well. A date who carries the conversation for you teaches nothing
+
+### prompt-dna
+
+Counts everything you have ever typed at the agent and reads your prompting habits back to you.
+
+- Four axes — instruction length, working hours, how often you ask for verification, and how concentrated your repos are — resolve to one of 16 types
+- Every claim is backed by a real number. You answer no questionnaire; it counts what you already said
+- Also ranks your verbal tics, including the Korean jamo shorthand (`ㄱㄱ`, `ㅇㅋ`)
+- A metric within three points of a threshold is reported as borderline rather than forced to one side
+- Never prints your raw prompts, only counts and word frequencies. No network calls
+
 ---
 
 ## Installation
@@ -94,6 +123,9 @@ Claude Code only. Pick skills individually and toggle them with `/plugin`.
 /plugin install worklog@seungboshim-skills
 /plugin install handoff@seungboshim-skills
 /plugin install tailwind-design-system@seungboshim-skills
+/plugin install truman@seungboshim-skills
+/plugin install date-sim@seungboshim-skills
+/plugin install prompt-dna@seungboshim-skills
 ```
 
 ### Install via skills.sh

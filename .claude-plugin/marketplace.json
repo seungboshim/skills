@@ -135,6 +135,60 @@
         "nextjs",
         "tokens"
       ]
+    },
+    {
+      "name": "truman",
+      "source": "./skills/truman",
+      "displayName": "트루먼씨",
+      "description": "오늘 하루 개발한 흔적(커밋·reflog·세션 발언)을 3인칭 관찰 예능 내레이션 에피소드로 만든다. 시즌과 회차가 누적되고, 못 끝낸 일은 다음 회 예고가 된다.",
+      "version": "1.0.0",
+      "author": {
+        "name": "seungboshim"
+      },
+      "category": "workflow",
+      "tags": [
+        "retrospective",
+        "narrative",
+        "git",
+        "daily",
+        "fun"
+      ]
+    },
+    {
+      "name": "date-sim",
+      "source": "./skills/date-sim",
+      "displayName": "모의 소개팅",
+      "description": "채팅으로 소개팅 한 번을 처음부터 끝까지 진행하며 대화 습관을 훈련한다. 상대의 숨은 니즈는 끝까지 숨기고, 끝나면 자기 얘기 비율·질문 횟수·결정적 순간을 짚는 부검 리포트를 낸다.",
+      "version": "1.0.0",
+      "author": {
+        "name": "seungboshim"
+      },
+      "category": "workflow",
+      "tags": [
+        "simulation",
+        "conversation",
+        "training",
+        "empathy",
+        "fun"
+      ]
+    },
+    {
+      "name": "prompt-dna",
+      "source": "./skills/prompt-dna",
+      "displayName": "프롬프트 DNA",
+      "description": "그동안 에이전트에게 해온 말을 전부 세어 지시 습관을 진단한다. 지시 길이·작업 시간대·확인 습관·저장소 편중도로 네 축을 잡고 16유형 중 하나를 낸다. 원문 지시는 출력하지 않는다.",
+      "version": "1.0.0",
+      "author": {
+        "name": "seungboshim"
+      },
+      "category": "workflow",
+      "tags": [
+        "analytics",
+        "retrospective",
+        "habits",
+        "prompting",
+        "fun"
+      ]
     }
   ]
 }

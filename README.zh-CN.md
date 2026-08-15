@@ -75,6 +75,35 @@ Tailwind CSS + Next.js 项目的设计系统构建器与重构指南。
 - 同时支持新项目 (Phase 0: 设计提示) 与现有项目 (Phase 1: style audit)
 - 用于设计令牌合规的 ongoing audit 模式
 
+### truman
+
+把今天的开发痕迹做成第三人称观察类纪录片剧集。
+
+- 汇总 commit、reflog、Claude 会话里你输入的发言与 shell 历史，再编成剧本
+- 季与集数会累积，没做完的事就成为下集预告；同一项反复出现时会写成「连续三集登场」
+- 结尾两块（制作笔记、下集预告）只写可观测的信号，可以直接当复盘用
+- 采集全部基于本地文件，只读，不联网
+
+### date-sim
+
+在聊天里完整跑一次模拟相亲，用来训练对话习惯。
+
+- 只需选难度、场地和对象，就会进行 8~12 轮。每轮给出好感度变化和一句点评
+- 对方身上有一个雷区和一个隐藏需求。需求全程不公开，只在报告里揭晓
+- 结束后给出复盘报告：自我陈述占比、提问次数、三个转折点，以及只有一条的下次练习课题
+- 次数累积后会和上一次对比，同一条指摘出现三次以上就标记为「顽疾」
+- 平淡的回答不会得高分。对方替你把话都接住的设定练不出东西
+
+### prompt-dna
+
+把你一直以来对智能体说过的话全部数一遍，诊断你的指令习惯。
+
+- 用指令长度、工作时段、要求确认的频率、仓库集中度四条轴，给出 16 型中的一个
+- 依据全是真实数字。不用答题，它数的是你已经说过的话
+- 还会给出口头习惯和字母缩写（`ㄱㄱ`、`ㅇㅋ`）排行
+- 指标距阈值三个百分点以内会标为「边界型」，不硬往一边推
+- 不输出指令原文，只给数值与词频，也不联网
+
 ---
 
 ## 安装
@@ -92,6 +121,9 @@ Tailwind CSS + Next.js 项目的设计系统构建器与重构指南。
 /plugin install worklog@seungboshim-skills
 /plugin install handoff@seungboshim-skills
 /plugin install tailwind-design-system@seungboshim-skills
+/plugin install truman@seungboshim-skills
+/plugin install date-sim@seungboshim-skills
+/plugin install prompt-dna@seungboshim-skills
 ```
 
 ### 通过 skills.sh 安装

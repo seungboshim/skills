@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# prompt-dna/render.sh — analyze.sh 가 낸 지표를 결과지 카드 한 장으로 만든다.
+# prompt-mbti/render.sh — analyze.sh 가 낸 지표를 결과지 카드 한 장으로 만든다.
 #
 #   ./render.sh /tmp/dna.md                      # HTML 만 만든다
 #   ./render.sh /tmp/dna.md --png                # PNG 까지 찍는다 (헤드리스 크롬 필요)
@@ -25,6 +25,10 @@ done
 [ -n "$IN" ] && [ -f "$IN" ] || { echo "지표 파일을 주세요: ./render.sh <지표.md>" >&2; exit 2; }
 command -v python3 >/dev/null 2>&1 || { echo "python3 가 필요하다" >&2; exit 1; }
 [ -n "$OUT" ] || OUT="${IN%.md}.html"
+
+# 코칭 문서는 이 스크립트 옆에서 찾는다. 지표 파일 위치와는 상관없다.
+HERE="$(cd "$(dirname "$0")" && pwd)"
+export PROMPT_MBTI_COACHING="$HERE/../references/coaching.md"
 
 python3 - "$IN" "$OUT" <<'PY'
 import re, sys, html
@@ -67,9 +71,11 @@ e = html.escape
 POLES = {"말수": ("S 단문형","L 장문형",120), "시간": ("D 주행성","N 야행성",30),
          "태도": ("T 위임형","V 검증형",50), "범위": ("W 산개형","F 집중형",100)}
 rows = []
+lean = []
 for k, v, c, lab in axes:
     lo, hi, full = POLES.get(k, ("","",100))
     pos = max(4, min(96, round(num(v) / full * 100)))
+    lean.append((abs(pos - 50), c, k))
     rows.append(f'''<div class="ax">
       <span class="k">{e(k)}</span>
       <span class="pole">{e(lo)}</span>
@@ -77,6 +83,31 @@ for k, v, c, lab in axes:
       <span class="pole r">{e(hi)}</span>
       <span class="val">{e(v)}</span></div>''')
 axis_html = "".join(rows)
+
+# 가장 치우친 축 두 개만 코칭한다. 넷을 다 주면 아무것도 안 고친다.
+import os
+coach_path = os.environ.get("PROMPT_MBTI_COACHING", "")
+coach_items = []
+if coach_path and os.path.exists(coach_path):
+    ct = open(coach_path, encoding="utf-8").read()
+    for _, letter, axis in sorted(lean, reverse=True)[:2]:
+        m = re.search(r'^## ' + letter + r' (\S+) \((.+?)\)\n(.*?)(?=\n## |\Z)', ct, re.S | re.M)
+        if not m: continue
+        body = m.group(3)
+        line = re.search(r'^> (?:\*\*이렇게 말해보세요\*\*\n> )?(.+)$', body, re.M)
+        quote = re.findall(r'^> (.+)$', body, re.M)
+        say = quote[-1] if quote else ""
+        after = re.search(r'^- after: (.+)$', body, re.M)
+        coach_items.append((f"{letter} {m.group(1)}", say, after.group(1) if after else ""))
+coach_html = "".join(
+    f'<div class="co"><span class="tag">{e(t)}</span>'
+    f'<div class="say">{e(say)}</div>'
+    f'{f"<div class=\"ex\">{e(af)}</div>" if af else ""}</div>'
+    for t, say, af in coach_items)
+
+# 유형 캐릭터가 있으면 넣는다. 없으면 자리를 비운다.
+char = os.path.expanduser(f"~/.claude/prompt-mbti/characters/{code}.png")
+char_html = f'<img class="ch" src="file://{char}" alt="">' if os.path.exists(char) else ""
 
 tool_rows = "".join(
     f'<tr><th>{e(n)}</th><td>{e(cnt)}건</td><td>{e(med)}자</td>'
@@ -88,7 +119,7 @@ tool_rows = "".join(
 chips = lambda xs: "".join(f'<span class="chip">{e(w)}<i>{c}</i></span>' for w, c in xs)
 
 open(dst, "w", encoding="utf-8").write(f"""<!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><title>프롬프트 DNA — {e(code)}</title><style>
+<html lang="ko"><head><meta charset="utf-8"><title>프롬프트 MBTI — {e(code)}</title><style>
 :root{{--bg:#f4ece0;--pa:#ece0cd;--fg:#4a3728;--dim:#9b8straight;--dim:#9a8straight}}
 :root{{--dim:#9a8булlace}}
 </style><style>
@@ -129,9 +160,14 @@ padding:5px 11px;margin:0 7px 8px 0;font-size:12.5px}}
 .chip i{{font-style:normal;color:var(--ac);margin-left:8px;font-size:11.5px}}
 .cols{{display:flex;gap:44px}} .cols>div{{flex:1}}
 .tone{{font-size:14px;color:var(--ac2)}} .tone b{{color:var(--ac);font-size:16px}}
+.co{{margin:14px 0}} .co .tag{{display:inline-block;font-size:11px;letter-spacing:.1em;
+color:var(--ac);border:1px solid var(--ac);border-radius:2px;padding:2px 7px;margin-bottom:8px}}
+.co .say{{font-size:14px;line-height:1.65;color:var(--fg)}}
+.co .ex{{margin-top:6px;font-size:12.5px;color:var(--ac2);border-left:2px solid var(--line);padding-left:10px}}
+.ch{{width:104px;height:104px;object-fit:contain;margin-left:20px}}
 footer{{margin-top:14px;color:var(--dim);font-size:11.5px;display:flex;justify-content:space-between}}
 </style></head><body>
-<div class="hd"><h1>{e(code)}<small>{e(name)}</small></h1>
+<div class="hd"><h1>{e(code)}<small>{e(name)}</small></h1>{char_html}
 <div class="meta">{e(window)}<br>{e(sample)}{f'<div class="warn">{e(warn)}</div>' if warn else ''}</div></div>
 <hr><h2>성향</h2>
 {axis_html}
@@ -142,7 +178,8 @@ footer{{margin-top:14px;color:var(--dim);font-size:11.5px;display:flex;justify-c
 <h2 style="margin-top:20px">말의 온도</h2>
 <div class="tone"><b>질책 {e(scold)}%</b> &nbsp;대&nbsp; <b>칭찬 {e(praise)}%</b></div></div></div>
 <hr><h2>어디서 말했나</h2>{chips(projs)}
-<hr><footer><span>prompt-dna</span><span>원문 지시는 이 카드에 없다</span></footer>
+{f'<hr><h2>앞으로는 이렇게 말해보세요</h2>{coach_html}' if coach_html else ''}
+<hr><footer><span>prompt-mbti</span><span>원문 지시는 이 카드에 없다</span></footer>
 </body></html>""")
 print(dst)
 PY

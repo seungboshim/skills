@@ -94,7 +94,7 @@ Tailwind CSS + Next.js 项目的设计系统构建器与重构指南。
 - 次数累积后会和上一次对比，同一条指摘出现三次以上就标记为「顽疾」
 - 平淡的回答不会得高分。对方替你把话都接住的设定练不出东西
 
-### prompt-dna
+### prompt-mbti
 
 把你一直以来对智能体说过的话全部数一遍，诊断你的指令习惯。
 
@@ -103,6 +103,15 @@ Tailwind CSS + Next.js 项目的设计系统构建器与重构指南。
 - 还会给出口头习惯和字母缩写（`ㄱㄱ`、`ㅇㅋ`）排行
 - 指标距阈值三个百分点以内会标为「边界型」，不硬往一边推
 - 不输出指令原文，只给数值与词频，也不联网
+
+### diggz-radio
+
+把当前开发任务和情绪编译成可播放的独立音乐电台。
+
+- 将工作场景与希望音乐带来的方向（push、hold、cool-down）分开判断
+- 不按分数罗列歌曲，而是把已验证曲目编辑成 `entry → lock → turn → landing` 能量曲线
+- 使用官方 YouTube IFrame Player，点击开始前保持静音
+- 不编造曲目、视频 ID 或播放量，也不读取浏览器 Cookie 或使用非官方 Music API
 
 ---
 
@@ -123,7 +132,8 @@ Tailwind CSS + Next.js 项目的设计系统构建器与重构指南。
 /plugin install tailwind-design-system@seungboshim-skills
 /plugin install truman@seungboshim-skills
 /plugin install date-sim@seungboshim-skills
-/plugin install prompt-dna@seungboshim-skills
+/plugin install prompt-mbti@seungboshim-skills
+/plugin install diggz-radio@seungboshim-skills
 ```
 
 ### 通过 skills.sh 安装

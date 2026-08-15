@@ -9,7 +9,7 @@ set -uo pipefail
 export TZ=Asia/Seoul   # 시간대에 따라 새벽 비중이 달라지므로 고정한다
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
-TMP=$(mktemp -d -t promptdna-test)
+TMP=$(mktemp -d -t promptmbti-test)
 trap 'rm -rf "$TMP"' EXIT
 
 FAIL=0

@@ -103,7 +103,7 @@ Tailwind CSS와 Next.js 프로젝트에서 디자인 시스템을 만들거나 �
 
 자세한 설명과 예시 리포트는 [skills/date-sim/README.md](skills/date-sim/README.md)에 있습니다.
 
-### prompt-dna
+### prompt-mbti
 
 그동안 에이전트에게 해온 말을 전부 세어 지시 습관을 진단합니다.
 
@@ -113,7 +113,18 @@ Tailwind CSS와 Next.js 프로젝트에서 디자인 시스템을 만들거나 �
 - 임계값에 3포인트 안쪽으로 걸리면 경계형이라고 적습니다. 한쪽으로 밀지 않습니다.
 - 원문 지시는 출력하지 않습니다. 수치와 낱말 빈도만 냅니다. 네트워크를 쓰지 않습니다.
 
-자세한 설명과 실제 결과지는 [skills/prompt-dna/README.md](skills/prompt-dna/README.md)에 있습니다.
+자세한 설명과 실제 결과지는 [skills/prompt-mbti/README.md](skills/prompt-mbti/README.md)에 있습니다.
+
+### diggz-radio
+
+지금 하는 개발 작업과 기분을 읽어, 덜 알려진 실제 트랙으로 코딩 라디오를 만듭니다.
+
+- `deep-focus`, `debug-loop`, `mechanical` 등 작업 장면과 `push`, `hold`, `cool-down` 방향을 따로 잡습니다.
+- 곡을 점수순으로 나열하지 않고 `entry → lock → turn → landing` 에너지 곡선으로 편집합니다.
+- 공식 YouTube IFrame Player를 쓰며, 화면이 열려도 사용자가 누르기 전에는 소리가 나지 않습니다.
+- 조회수·영상 ID를 검증하지 못하면 지어내지 않습니다. 비공식 API나 브라우저 쿠키도 쓰지 않습니다.
+
+자세한 설명과 실행 방식은 [skills/diggz-radio/README.md](skills/diggz-radio/README.md)에 있습니다.
 
 ---
 
@@ -135,7 +146,8 @@ Claude Code에서만 동작합니다. 스킬을 하나씩 골라 설치하고, `
 /plugin install tailwind-design-system@seungboshim-skills
 /plugin install truman@seungboshim-skills
 /plugin install date-sim@seungboshim-skills
-/plugin install prompt-dna@seungboshim-skills
+/plugin install prompt-mbti@seungboshim-skills
+/plugin install diggz-radio@seungboshim-skills
 ```
 
 ### skills.sh로 설치

@@ -96,7 +96,7 @@ Runs one mock date from start to finish in chat, as conversation-habit training.
 - Across sessions it compares runs and flags a recurring note as a chronic habit after three appearances
 - Bland answers do not score well. A date who carries the conversation for you teaches nothing
 
-### prompt-dna
+### prompt-mbti
 
 Counts everything you have ever typed at the agent and reads your prompting habits back to you.
 
@@ -105,6 +105,15 @@ Counts everything you have ever typed at the agent and reads your prompting habi
 - Also ranks your verbal tics, including the Korean jamo shorthand (`ㄱㄱ`, `ㅇㅋ`)
 - A metric within three points of a threshold is reported as borderline rather than forced to one side
 - Never prints your raw prompts, only counts and word frequencies. No network calls
+
+### diggz-radio
+
+Compiles your current coding task and mood into a playable indie radio session.
+
+- Separates the work scene (`deep-focus`, `debug-loop`, or `mechanical`) from the direction you want (`push`, `hold`, or `cool-down`)
+- Edits verified tracks into an `entry → lock → turn → landing` energy arc instead of ranking songs
+- Uses the official YouTube IFrame Player and stays silent until you click start
+- Never invents tracks, IDs, or view counts, and never reads browser cookies or unofficial Music APIs
 
 ---
 
@@ -125,7 +134,8 @@ Claude Code only. Pick skills individually and toggle them with `/plugin`.
 /plugin install tailwind-design-system@seungboshim-skills
 /plugin install truman@seungboshim-skills
 /plugin install date-sim@seungboshim-skills
-/plugin install prompt-dna@seungboshim-skills
+/plugin install prompt-mbti@seungboshim-skills
+/plugin install diggz-radio@seungboshim-skills
 ```
 
 ### Install via skills.sh

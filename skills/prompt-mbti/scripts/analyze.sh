@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# prompt-dna/analyze.sh — 내가 에이전트에게 해온 말을 전부 세어 지표로 만든다.
+# prompt-mbti/analyze.sh — 내가 에이전트에게 해온 말을 전부 세어 지표로 만든다.
 #
 # 숫자와 유형 코드는 스크립트가 확정하고, 모델은 해석만 한다. 네트워크를 쓰지 않고
 # 읽기 전용이다. 원문 지시는 출력하지 않는다. 세어본 수치와 짧은 말버릇만 낸다.
@@ -84,7 +84,7 @@ fi
 TZOFF=$(date +%z | awk '{ s=substr($0,1,1); h=substr($0,2,2)+0; m=substr($0,4,2)+0;
                           v=h*3600+m*60; print (s=="-" ? -v : v) }')
 
-TSV=$(mktemp -t promptdna)
+TSV=$(mktemp -t promptmbti)
 trap 'rm -f "$TSV" "$TSV.w" "$TSV.h" "$TSV.claude" "$TSV.codex" "$TSV.hermes"' EXIT
 
 JQ_PROG='

@@ -96,7 +96,7 @@ Tailwind CSS + Next.js プロジェクト向けのデザインシステム ビ�
 - 回数が積み上がると前回と比較し、同じ指摘が 3 回以上出たら「慢性化」として表示する
 - 無難な返しには点をあげない。相手が全部リードしてくれる設定では訓練にならない
 
-### prompt-dna
+### prompt-mbti
 
 これまでエージェントに投げてきた言葉を全部数えて、指示の癖を診断する。
 
@@ -105,6 +105,15 @@ Tailwind CSS + Next.js プロジェクト向けのデザインシステム ビ�
 - 口癖と字母表現 (`ㄱㄱ`、`ㅇㅋ`) のランキングも出る
 - しきい値まで 3 ポイント以内なら「境界型」と書く。無理にどちらかへ寄せない
 - 指示の原文は出力しない。数値と語の頻度だけ。ネットワークは使わない
+
+### diggz-radio
+
+今の開発作業と気分を、再生できるインディー・ラジオへコンパイルする。
+
+- 作業シーンと、音楽に求める方向（push・hold・cool-down）を分けて判断する
+- 検証済みの曲を `entry → lock → turn → landing` のエネルギー曲線に編集する
+- 公式 YouTube IFrame Player を使い、開始ボタンを押すまでは再生しない
+- 曲名・動画 ID・再生数を創作せず、非公式 API やブラウザ Cookie も使わない
 
 ---
 
@@ -125,7 +134,8 @@ Claude Code 専用です。スキルを個別に選んで導入し、`/plugin` �
 /plugin install tailwind-design-system@seungboshim-skills
 /plugin install truman@seungboshim-skills
 /plugin install date-sim@seungboshim-skills
-/plugin install prompt-dna@seungboshim-skills
+/plugin install prompt-mbti@seungboshim-skills
+/plugin install diggz-radio@seungboshim-skills
 ```
 
 ### skills.sh から導入

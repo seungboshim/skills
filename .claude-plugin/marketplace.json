@@ -173,9 +173,9 @@
       ]
     },
     {
-      "name": "prompt-dna",
-      "source": "./skills/prompt-dna",
-      "displayName": "프롬프트 DNA",
+      "name": "prompt-mbti",
+      "source": "./skills/prompt-mbti",
+      "displayName": "프롬프트 MBTI",
       "description": "그동안 에이전트에게 해온 말을 전부 세어 지시 습관을 진단한다. 지시 길이·작업 시간대·확인 습관·저장소 편중도로 네 축을 잡고 16유형 중 하나를 낸다. 원문 지시는 출력하지 않는다.",
       "version": "1.0.0",
       "author": {
@@ -187,6 +187,26 @@
         "retrospective",
         "habits",
         "prompting",
+        "fun"
+      ]
+    },
+    {
+      "name": "diggz-radio",
+      "source": "./skills/diggz-radio",
+      "displayName": "Diggz Radio",
+      "description": "지금 하는 개발 작업과 기분을 읽어 덜 알려진 실제 트랙을 디깅하고, 30~90분 에너지 곡선과 한 번 클릭으로 재생되는 로컬 YouTube 라디오를 만든다.",
+      "version": "1.0.0",
+      "author": {
+        "name": "seungboshim"
+      },
+      "category": "workflow",
+      "tags": [
+        "music",
+        "coding",
+        "indie",
+        "discovery",
+        "youtube",
+        "focus",
         "fun"
       ]
     }

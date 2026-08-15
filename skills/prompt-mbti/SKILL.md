@@ -1,11 +1,11 @@
 ---
-name: prompt-dna
+name: prompt-mbti
 description: >
   내가 그동안 에이전트에게 해온 말을 전부 세어 프롬프트 습관을 진단한다. Claude Code·Codex·Hermes
   기록을 함께 모아 도구마다 다르게 말하는지도 비교한다. 지시 길이, 작업 시간대,
   확인하는 습관, 저장소 편중도로 네 축을 잡고 16유형 중 하나를 낸다.
   말버릇과 자모 표현(ㄱㄱ, ㅇㅋ) 순위도 함께 나온다. 원문 지시는 출력하지 않는다.
-  트리거: "/prompt-dna", "프롬프트 DNA", "내 프롬프트 분석", "내 프롬프트 습관",
+  트리거: "/prompt-mbti", "프롬프트 MBTI", "내 프롬프트 분석", "내 프롬프트 습관",
   "프롬프트 성향", "나 어떤 개발자야", "내 지시 스타일 분석해줘", "프롬프트 MBTI",
   "prompt habits", "analyze my prompts". 결과지를 Artifact 로 발행해 공유할 수 있다.
 compatibility: bash 와 jq 필요. 읽는 곳은 ~/.claude/projects, ~/.codex/sessions,
@@ -15,7 +15,7 @@ metadata:
   author: seungboshim
 ---
 
-# 프롬프트 DNA
+# 프롬프트 MBTI
 
 에이전트에게 한 말은 전부 남아 있다. 이 스킬은 그걸 세어서 내 지시 습관을 보여준다.
 
@@ -35,14 +35,14 @@ metadata:
 작업 디렉터리는 사용자의 프로젝트라서 상대 경로로는 못 찾는다.
 
 ```bash
-bash "<이 스킬의 base directory>/scripts/analyze.sh" --out /tmp/prompt-dna.md \
-  && cat /tmp/prompt-dna.md
+bash "<이 스킬의 base directory>/scripts/analyze.sh" --out /tmp/prompt-mbti.md \
+  && cat /tmp/prompt-mbti.md
 ```
 
 base directory 를 모르면 이렇게 찾는다.
 
 ```bash
-find ~/.claude ~/.config -name analyze.sh -path '*prompt-dna*' 2>/dev/null | head -1
+find ~/.claude ~/.config -name analyze.sh -path '*prompt-mbti*' 2>/dev/null | head -1
 ```
 
 - 기본은 **찾을 수 있는 도구 전부**다. `~/.claude/projects`(Claude Code),
@@ -82,7 +82,7 @@ find ~/.claude ~/.config -name analyze.sh -path '*prompt-dna*' 2>/dev/null | hea
 지표를 뽑았으면 묻지 말고 결과지 카드까지 만든다. 사람이 보는 건 이 카드다.
 
 ```bash
-bash "<base directory>/scripts/render.sh" /tmp/prompt-dna.md --png
+bash "<base directory>/scripts/render.sh" /tmp/prompt-mbti.md --png
 ```
 
 HTML 과 PNG 경로를 사용자에게 알려준다. 크롬이 없으면 PNG 만 건너뛰고 HTML 은 남는다.
@@ -116,7 +116,7 @@ HTML 과 PNG 경로를 사용자에게 알려준다. 크롬이 없으면 PNG 만
 ### 일주일 (`--days 7`)
 
 유형 카드는 내되 **작게** 두고, 지난 결과지와의 차이를 앞에 놓는다.
-`~/.claude/prompt-dna/` 에 이전 결과지가 없으면 차이 블록을 빼고 이번 주 숫자만 쓴다.
+`~/.claude/prompt-mbti/` 에 이전 결과지가 없으면 차이 블록을 빼고 이번 주 숫자만 쓴다.
 
 ### 전체 (기본)
 
@@ -154,7 +154,7 @@ HTML 과 PNG 경로를 사용자에게 알려준다. 크롬이 없으면 PNG 만
 
 ## 4. 저장과 발행
 
-- 결과지를 `~/.claude/prompt-dna/report-YYYY-MM-DD.md` 로 저장한다
+- 결과지를 `~/.claude/prompt-mbti/report-YYYY-MM-DD.md` 로 저장한다
 - 같은 디렉터리에 이전 결과지가 있으면 **축이 바뀐 것만** 비교해 한 줄 덧붙인다.
   ("두 달 전에는 검증형이었다") 없으면 비교 블록을 넣지 않는다
 - 사용자가 "공유", "이미지로", "화면으로" 라고 하면 Artifact 로 발행한다.

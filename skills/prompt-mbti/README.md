@@ -1,4 +1,4 @@
-# prompt-dna
+# prompt-mbti
 
 **성격 검사인데 문항이 없다. 이미 내가 한 말을 센다.**
 
@@ -12,7 +12,7 @@ Claude Code, Codex, Hermes 기록을 함께 모아 네 축으로 16유형 중 �
 그 답은 자기 인식이지 행동이 아닙니다. 프롬프트 습관을 개선하라는 조언도 마찬가지입니다.
 "더 구체적으로 지시하세요"는 맞는 말이지만, 내가 지금 얼마나 구체적인지를 알려주지 않습니다.
 
-prompt-dna 는 묻지 않습니다. **에이전트 도구들이 이미 쌓아둔 세션 기록을 셉니다.**
+prompt-mbti 는 묻지 않습니다. **에이전트 도구들이 이미 쌓아둔 세션 기록을 셉니다.**
 
 여기가 접근이 갈리는 지점입니다. 에이전트를 쓴 기록은 원래 "무엇을 만들었나"의 재료로만
 쓰입니다. 이 스킬은 같은 기록을 뒤집어서 **"어떻게 시켰나"의 재료로** 씁니다.
@@ -38,7 +38,7 @@ Codex:       지시 1746건 · 중앙값 65자 · 물음표 39% · 확인 요청
 
 ### 입력
 
-없습니다. `/prompt-dna` 라고 치거나 "내 프롬프트 습관 분석해줘"라고 말하면 됩니다.
+없습니다. `/prompt-mbti` 라고 치거나 "내 프롬프트 습관 분석해줘"라고 말하면 됩니다.
 
 ### 처리
 
@@ -49,7 +49,7 @@ Codex:       지시 1746건 · 중앙값 65자 · 물음표 39% · 확인 요청
 2. 지시 길이, 시간대, 확인 습관, 저장소 편중도, 말버릇 빈도를 셉니다
 3. 스크립트가 임계값을 적용해 **유형 코드를 확정합니다.** 모델은 판정을 다시 하지 않고
    해석만 합니다. 같은 데이터에 같은 코드가 나오게 하려고 계산을 스크립트에 묶었습니다
-4. 결과지를 만들어 `~/.claude/prompt-dna/report-YYYY-MM-DD.md` 로 저장합니다
+4. 결과지를 만들어 `~/.claude/prompt-mbti/report-YYYY-MM-DD.md` 로 저장합니다
 
 ### 네 축
 
@@ -160,7 +160,7 @@ Claude Code, Codex, Hermes 중 하나라도 쓴 기록이 있으면 설정 없�
 
 ```bash
 /plugin marketplace add seungboshim/skills
-/plugin install prompt-dna@seungboshim-skills
+/plugin install prompt-mbti@seungboshim-skills
 ```
 
 `jq` 가 필요합니다. macOS 는 `brew install jq`.

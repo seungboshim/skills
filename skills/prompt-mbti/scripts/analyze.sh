@@ -10,6 +10,7 @@
 #   ./analyze.sh --source claude     # 한 도구만 (all | claude | codex | hermes)
 #   ./analyze.sh --max 10000         # 분석 상한 (기본 3000, 최근 것부터 센다)
 #   ./analyze.sh --no-tools          # 도구 호출 집계를 건너뛴다 (더 빠르다)
+#   ./analyze.sh --no-history        # 이번 측정을 이력에 남기지 않는다
 #   ./analyze.sh --out /tmp/dna.md   # 파일로 저장하고 경로만 출력
 #
 # 읽는 곳: ~/.claude/projects (Claude Code), ~/.codex/sessions (Codex CLI),
@@ -22,6 +23,7 @@ DAYS=""
 TODAY=0
 MAX=3000
 TOOLSCAN=1
+HISTORY="$HOME/.claude/prompt-mbti/history.jsonl"
 OUT=""
 SOURCE="all"
 PROJ="$HOME/.claude/projects"
@@ -34,6 +36,8 @@ while [ $# -gt 0 ]; do
     --today) TODAY=1; shift ;;
     --max) MAX="${2:-}"; shift 2 ;;
     --no-tools) TOOLSCAN=0; shift ;;
+    --history) HISTORY="${2:-}"; shift 2 ;;
+    --no-history) HISTORY=""; shift ;;
     --out) OUT="${2:-}"; shift 2 ;;
     --root) PROJ="${2:-}"; shift 2 ;;
     --codex-root) CODEX="${2:-}"; shift 2 ;;
@@ -235,10 +239,18 @@ if [ "$HAS_CLAUDE" -eq 1 ] && [ "$TOOLSCAN" -eq 1 ]; then
         | select($t >= $since)
         | .message.content[]?
         | select(.type=="tool_use")
-        | [.name, ((.input.skill // .input.subagent_type // "") | tostring)]
+        | [ .name,
+            ((.input.skill // .input.subagent_type // "") | tostring),
+            ( if .name == "Bash"
+              then ((.input.command // "") | split("\n") | (.[0] // "")
+                    | gsub("^cd [^&]+&& *";"") | gsub("^\\s+";"")
+                    | split(" ") | .[0:2] | join(" "))
+              else "" end ) ]
         | @tsv' 2>/dev/null > "$TSV.t"
 fi
 TOOLS=$(grep -c . "$TSV.t" 2>/dev/null || true)
+AG=$(awk -F'\t' '$1 == "Agent" || $1 == "Task"' "$TSV.t" 2>/dev/null | grep -c . || true)
+SK=$(awk -F'\t' '$1 == "Skill"' "$TSV.t" 2>/dev/null | grep -c . || true)
 
 # 지시 본문만 따로 빼둔다 (말버릇 집계용). 도구 열이 8번이라 본문은 7번 하나다.
 cut -f7 "$TSV" > "$TSV.w"
@@ -368,8 +380,6 @@ else
   cut -f1 "$TSV.t" | sort | uniq -c | sort -rn | head -6 \
     | while read -r c t; do echo "- ${t} ${c}회 ($(pct "$c" "$TOOLS")%)"; done
   echo
-  AG=$(awk -F'\t' '$1 == "Agent" || $1 == "Task"' "$TSV.t" | grep -c . || true)
-  SK=$(awk -F'\t' '$1 == "Skill"' "$TSV.t" | grep -c . || true)
   echo "- 서브에이전트에 맡긴 횟수: ${AG}회 (지시 100건당 $(awk -v a="$AG" -v b="$N" 'BEGIN { printf "%.0f", (b>0 ? a*100/b : 0) }')회)"
   echo "- 스킬을 부른 횟수: ${SK}회 (지시 100건당 $(awk -v a="$SK" -v b="$N" 'BEGIN { printf "%.0f", (b>0 ? a*100/b : 0) }')회)"
   if [ "$SK" -gt 0 ]; then
@@ -380,6 +390,27 @@ else
   else
     echo "- 스킬을 한 번도 부르지 않았다. 반복하는 절차가 있다면 아직 손으로 하고 있다는 뜻이다"
   fi
+fi
+
+echo
+echo "## 자동화 후보"
+echo
+if [ "${TOOLS:-0}" -eq 0 ]; then
+  echo "(도구 기록이 없어 셀 수 없다)"
+else
+  echo "터미널에서 반복한 명령이다. 같은 것을 손으로 여러 번 치고 있다면 훅이나 스크립트의 자리다."
+  echo
+  # 조회성 명령(git status, grep 같은 것)은 습관이지 자동화 대상이 아니다. 따로 표시한다.
+  awk -F'\t' '$1 == "Bash" && $3 != "" { print $3 }' "$TSV.t" \
+    | grep -vE '^(echo|EOF|#|-|\||\}|\{|for|if|then|fi|done)' \
+    | sort | uniq -c | sort -rn | head -10 \
+    | while read -r c cmd; do
+        if echo "$cmd" | grep -qE '^(npx tsc|tsc|npm test|npm run|yarn|pnpm|jest|vitest|pytest|go test|cargo|make|eslint|prettier|ruff|mypy|bash scripts)'; then
+          echo "- ${cmd} ${c}회  ← 검증·빌드 계열. 훅이나 커밋 전 단계로 내릴 수 있다"
+        else
+          echo "- ${cmd} ${c}회"
+        fi
+      done
 fi
 
 echo
@@ -427,6 +458,43 @@ awk -v med="$MEDLEN" -v night="$(pct "$NIGHT" "$N")" -v chk="$(pct "$CHECK" "$N"
   d = (top >= 50 ? "F" : "W");   printf "- 범위: 최다 저장소 %d%% → %s (%s)\n", top, d, (d=="F" ? "집중형" : "산개형")
   printf "\n**유형 코드: %s%s%s%s**\n", a, b, c, d
 }'
+
+
+# ── 지난 측정과 비교. 숫자가 움직이는 걸 봐야 개선이 이어진다.
+if [ -n "$HISTORY" ]; then
+  TODAY=$(date +%Y-%m-%d)
+  SKP=$(awk -v a="${SK:-0}" -v b="$N" 'BEGIN { printf "%.0f", (b>0 ? a*100/b : 0) }')
+  AGP=$(awk -v a="${AG:-0}" -v b="$N" 'BEGIN { printf "%.0f", (b>0 ? a*100/b : 0) }')
+  CODE=$(awk -v med="$MEDLEN" -v night="$(pct "$NIGHT" "$N")" -v chk="$(pct "$CHECK" "$N")" \
+             -v top="$(pct "$TOPPROJN" "$KNOWN")" 'BEGIN {
+      printf "%s%s%s%s", (med<60?"S":"L"), (night>=15?"N":"D"), (chk>=25?"V":"T"), (top>=50?"F":"W") }')
+
+  echo
+  echo "## 지난 측정과 비교"
+  echo
+  PREV=$(grep -v "\"date\":\"${TODAY}\"" "$HISTORY" 2>/dev/null | tail -1)
+  if [ -z "$PREV" ]; then
+    echo "이번이 첫 측정이다. 다음에 다시 재면 무엇이 움직였는지 여기에 나온다."
+  else
+    printf '%s\n' "$PREV" | jq -r --arg code "$CODE" --argjson med "$MEDLEN" \
+      --argjson night "$(pct "$NIGHT" "$N")" --argjson chk "$(pct "$CHECK" "$N")" \
+      --argjson skp "$SKP" --argjson agp "$AGP" '
+      def arrow($old; $new): if $new > $old then "늘었다" elif $new < $old then "줄었다" else "그대로다" end;
+      "- 지난 측정 \(.date) (\(.window)) 대비",
+      (if .code != $code then "- 유형: \(.code) → \($code) **바뀌었다**" else "- 유형: \($code) 그대로" end),
+      "- 지시 길이 중앙값: \(.median)자 → \($med)자 (\(arrow(.median; $med)))",
+      "- 새벽 비중: \(.night)% → \($night)% (\(arrow(.night; $night)))",
+      "- 확인 요청: \(.check)% → \($chk)% (\(arrow(.check; $chk)))",
+      "- 스킬 호출: 지시 100건당 \(.skill_per100)회 → \($skp)회 (\(arrow(.skill_per100; $skp)))",
+      "- 서브에이전트: 지시 100건당 \(.agent_per100)회 → \($agp)회 (\(arrow(.agent_per100; $agp)))"
+      ' 2>/dev/null || echo "지난 기록을 읽지 못했다. 형식이 바뀌었을 수 있다."
+  fi
+
+  mkdir -p "$(dirname "$HISTORY")" 2>/dev/null
+  printf '{"date":"%s","window":"%s","n":%s,"code":"%s","median":%s,"night":%s,"check":%s,"conc":%s,"skill_per100":%s,"agent_per100":%s,"tools":%s}\n' \
+    "$TODAY" "$WINDOW" "${N:-0}" "$CODE" "${MEDLEN:-0}" "$(pct "$NIGHT" "$N")" "$(pct "$CHECK" "$N")" \
+    "$(pct "$TOPPROJN" "$KNOWN")" "$SKP" "$AGP" "${TOOLS:-0}" >> "$HISTORY" 2>/dev/null
+fi
 
 echo
 echo "---"

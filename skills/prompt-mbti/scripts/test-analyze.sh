@@ -49,7 +49,7 @@ rec "2026-07-01T17:00:00.000Z" "새벽에 짧게"                      # 02:00 K
 rec "2026-07-01T05:00:00.000Z" "TOOL-RESULT-SHOULD-NOT-COUNT" none # typed 아님 → 제외
 
 # 실제 ~/.codex 를 읽지 않도록 없는 경로를 준다. 이 구간은 Claude Code 기록만 본다.
-bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/no-codex" --hermes-root "$TMP/no-hermes" \
+bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/no-codex" --hermes-root "$TMP/no-hermes" --no-history \
   --out "$TMP/out.md" >/dev/null
 
 echo "analyze.sh 자기 점검"
@@ -65,7 +65,7 @@ check "유형 코드가 SNTF 로 확정된다"            "유형 코드: SNTF**
 absent "원문 지시가 새지 않는다"                "SECRET-TOKEN-DO-NOT-PRINT"
 absent "typed 아닌 기록의 본문이 안 나온다"     "TOOL-RESULT-SHOULD-NOT-COUNT"
 
-if bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/no-codex" --hermes-root "$TMP/no-hermes" \
+if bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/no-codex" --hermes-root "$TMP/no-hermes" --no-history \
      --days nope >/dev/null 2>&1; then
   echo "  FAIL 잘못된 --days 를 거부하지 않았다"; FAIL=1
 else
@@ -83,7 +83,7 @@ CXLOG="$CX/rollout-2026-07-01T10-30-00-019fb5cf-abcd.jsonl"
   printf '{"timestamp":"2026-07-01T01:33:00.000Z","type":"event_msg","payload":{"type":"agent_message","message":"AGENT-REPLY-SHOULD-NOT-COUNT"}}\n'
 } > "$CXLOG"
 
-bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/codex" --hermes-root "$TMP/no-hermes" \
+bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/codex" --hermes-root "$TMP/no-hermes" --no-history \
   --out "$TMP/out.md" >/dev/null
 
 echo
@@ -95,11 +95,11 @@ check "Codex 의 cwd 를 저장소로 읽는다" "fake-codex"
 check "Codex 어록도 자모로 잡힌다"      "ㅇㅋ 1회"
 absent "에이전트 답변은 세지 않는다"    "AGENT-REPLY-SHOULD-NOT-COUNT"
 
-bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/codex" --hermes-root "$TMP/no-hermes" \
+bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/codex" --hermes-root "$TMP/no-hermes" --no-history \
   --source codex --out "$TMP/out.md" >/dev/null
 check "--source codex 는 Codex 만 센다" "지시 2건 (Claude Code 0 · Codex 2 · Hermes 0)"
 
-if bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/no-codex" --hermes-root "$TMP/no-hermes" \
+if bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/no-codex" --hermes-root "$TMP/no-hermes" --no-history \
      --today --days 7 >/dev/null 2>&1; then
   echo "  FAIL --today 와 --days 를 같이 받았다"; FAIL=1
 else
@@ -110,7 +110,7 @@ fi
 CT="$TMP/projects/-tmp-fake"
 printf '{"type":"assistant","timestamp":"2026-07-01T02:30:00.000Z","message":{"content":[{"type":"tool_use","name":"Bash","input":{}},{"type":"tool_use","name":"Skill","input":{"skill":"worklog"}}]}}\n' >> "$CT/session.jsonl"
 
-bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/no-codex" --hermes-root "$TMP/no-hermes" \
+bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/no-codex" --hermes-root "$TMP/no-hermes" --no-history \
   --out "$TMP/out.md" >/dev/null
 echo
 echo "작업 방식을 셀 때"
@@ -119,7 +119,7 @@ check "도구 이름을 나눠 센다"      "- Bash 1회"
 check "스킬 호출을 따로 센다"      "스킬을 부른 횟수: 1회"
 check "부른 스킬 이름이 나온다"    "- worklog 1회"
 
-bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/no-codex" --hermes-root "$TMP/no-hermes" \
+bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/no-codex" --hermes-root "$TMP/no-hermes" --no-history \
   --no-tools --out "$TMP/out.md" >/dev/null
 check "--no-tools 로 끌 수 있다"   "도구 집계를 건너뛰었다"
 
@@ -132,7 +132,7 @@ if command -v sqlite3 >/dev/null 2>&1; then
     insert into messages values ('h1','user','[IMPORTANT: SKILL-INJECTION-SHOULD-NOT-COUNT]',1782000060);
     insert into messages values ('h1','assistant','HERMES-AGENT-SHOULD-NOT-COUNT',1782000120);" 2>/dev/null
 
-  bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/codex" --hermes-root "$HM" \
+  bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/codex" --hermes-root "$HM" --no-history \
     --out "$TMP/out.md" >/dev/null
 
   echo
@@ -147,7 +147,7 @@ else
 fi
 
 # ── 상한
-bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/codex" --hermes-root "$TMP/no-hermes" \
+bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/codex" --hermes-root "$TMP/no-hermes" --no-history \
   --max 3 --out "$TMP/out.md" >/dev/null
 echo
 echo "상한을 걸었을 때"
@@ -155,7 +155,7 @@ check "최근 3건만 남는다"        "지시 3건"
 check "몇 건을 뺐는지 밝힌다"    "오래된 4건을 뺐다"
 
 if bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/no-codex" \
-     --hermes-root "$TMP/no-hermes" --max 0 >/dev/null 2>&1; then
+     --hermes-root "$TMP/no-hermes" --no-history --max 0 >/dev/null 2>&1; then
   echo "  FAIL --max 0 을 받았다"; FAIL=1
 else
   echo "  ok   --max 0 을 거부한다"
@@ -164,7 +164,7 @@ fi
 # ── 코칭이 카드에 붙는가
 if command -v python3 >/dev/null 2>&1; then
   bash "$HERE/analyze.sh" --root "$TMP/projects" --codex-root "$TMP/codex" \
-    --hermes-root "$TMP/no-hermes" --out "$TMP/out.md" >/dev/null
+    --hermes-root "$TMP/no-hermes" --no-history --out "$TMP/out.md" >/dev/null
   bash "$HERE/render.sh" "$TMP/out.md" --out "$TMP/card.html" >/dev/null 2>&1
   echo
   echo "카드를 만들었을 때"

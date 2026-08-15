@@ -1,14 +1,15 @@
 ---
 name: prompt-dna
 description: >
-  내가 그동안 에이전트에게 해온 말을 전부 세어 프롬프트 습관을 진단한다. Claude Code 와
-  Codex 기록을 함께 모아 도구마다 다르게 말하는지도 비교한다. 지시 길이, 작업 시간대,
+  내가 그동안 에이전트에게 해온 말을 전부 세어 프롬프트 습관을 진단한다. Claude Code·Codex·Hermes
+  기록을 함께 모아 도구마다 다르게 말하는지도 비교한다. 지시 길이, 작업 시간대,
   확인하는 습관, 저장소 편중도로 네 축을 잡고 16유형 중 하나를 낸다.
   말버릇과 자모 표현(ㄱㄱ, ㅇㅋ) 순위도 함께 나온다. 원문 지시는 출력하지 않는다.
   트리거: "/prompt-dna", "프롬프트 DNA", "내 프롬프트 분석", "내 프롬프트 습관",
   "프롬프트 성향", "나 어떤 개발자야", "내 지시 스타일 분석해줘", "프롬프트 MBTI",
   "prompt habits", "analyze my prompts". 결과지를 Artifact 로 발행해 공유할 수 있다.
-compatibility: Claude Code 세션 기록(~/.claude/projects), bash, jq 필요. macOS와 Linux에서 동작한다.
+compatibility: bash 와 jq 필요. 읽는 곳은 ~/.claude/projects, ~/.codex/sessions,
+  ~/.hermes/state.db(sqlite3 필요). 있는 것만 읽는다. macOS와 Linux에서 동작한다.
 license: MIT
 metadata:
   author: seungboshim
@@ -44,10 +45,17 @@ base directory 를 모르면 이렇게 찾는다.
 find ~/.claude ~/.config -name analyze.sh -path '*prompt-dna*' 2>/dev/null | head -1
 ```
 
-- 기본은 **찾을 수 있는 도구 전부**다. `~/.claude/projects`(Claude Code)와
-  `~/.codex/sessions`(Codex CLI)를 읽는다. 한쪽만 있으면 그것만 읽고 그렇게 밝힌다
-- 한 도구만 보고 싶다고 하면 `--source claude` 또는 `--source codex`
+- 기본은 **찾을 수 있는 도구 전부**다. `~/.claude/projects`(Claude Code),
+  `~/.codex/sessions`(Codex CLI), `~/.hermes/state.db`(Hermes CLI)를 읽는다.
+  있는 것만 읽고 없는 도구는 0건으로 밝힌다
+- 한 도구만 보고 싶다고 하면 `--source claude|codex|hermes`
+- Hermes 는 `sqlite3` 가 있어야 읽는다. 없으면 그 소스만 건너뛴다
+- Hermes 는 작업 경로를 저장하지 않는다. 그래서 **편중도 축은 경로를 아는 지시만으로**
+  계산하고, 뺀 건수를 결과에 적는다
 - `jq` 가 없으면 멈춘다. 그때는 `brew install jq` 를 안내하고 끝낸다
+- 지시가 0건이면 결과지를 쓰지 않는다. 에이전트를 쓴 기록이 없다는 뜻이다
+- 지시가 100건 미만이면 유형은 내되 **표본 주의**를 결과 첫머리에 붙인다. 작은 표본의
+  유형을 고정된 성향처럼 설명하지 않는다
 
 ### 구간을 먼저 고르게 한다
 
@@ -62,10 +70,6 @@ find ~/.claude ~/.config -name analyze.sh -path '*prompt-dna*' 2>/dev/null | hea
 
 `--today` 는 새벽 5시에 하루를 끊는다. 새벽 3시 작업은 어제 것으로 센다.
 `truman` 스킬의 방송일과 같은 규칙이라 두 스킬의 "오늘"이 어긋나지 않는다.
-- `jq` 가 없으면 멈춘다. 그때는 `brew install jq` 를 안내하고 끝낸다
-- 지시가 0건이면 결과지를 쓰지 않는다. Claude Code 를 쓴 기록이 없다는 뜻이다
-- 지시가 100건 미만이면 유형은 내되 **표본 주의**를 결과 첫머리에 붙인다. 작은 표본의
-  유형을 고정된 성향처럼 설명하지 않는다
 
 스크립트가 마지막에 `## 축 판정` 으로 **유형 코드를 확정해서 준다.** 그 계산을 다시
 하지 않는다. 임계값 판정은 스크립트가 하고, 해석은 이 스킬이 한다.
@@ -144,8 +148,7 @@ find ~/.claude ~/.config -name analyze.sh -path '*prompt-dna*' 2>/dev/null | hea
 
 ## 프라이버시
 
-이 스킬이 읽는 건 `~/.claude/projects` 의 세션 기록이다. 내가 타이핑한 지시가 전부
-들어 있다.
+이 스킬이 읽는 건 각 도구의 세션 기록이다. 내가 타이핑한 지시가 전부 들어 있다.
 
 - 스크립트는 **원문 지시를 출력하지 않는다.** 수치와 낱말 빈도만 낸다
 - 낱말 빈도에도 사내 용어나 고객명이 올라올 수 있다. 발행하기 전에 말버릇 순위를

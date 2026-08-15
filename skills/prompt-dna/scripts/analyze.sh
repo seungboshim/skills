@@ -7,10 +7,11 @@
 #   ./analyze.sh                     # 전체 이력, 찾을 수 있는 도구 전부
 #   ./analyze.sh --days 7            # 최근 7일
 #   ./analyze.sh --today             # 오늘만 (새벽 5시에 하루를 끊는다)
-#   ./analyze.sh --source claude     # 한 도구만 (all | claude | codex)
+#   ./analyze.sh --source claude     # 한 도구만 (all | claude | codex | hermes)
 #   ./analyze.sh --out /tmp/dna.md   # 파일로 저장하고 경로만 출력
 #
-# 읽는 곳: ~/.claude/projects (Claude Code), ~/.codex/sessions (Codex CLI)
+# 읽는 곳: ~/.claude/projects (Claude Code), ~/.codex/sessions (Codex CLI),
+#          ~/.hermes/state.db (Hermes CLI, sqlite3 필요)
 
 set -uo pipefail
 export LC_ALL="${LC_ALL:-ko_KR.UTF-8}"
@@ -21,6 +22,7 @@ OUT=""
 SOURCE="all"
 PROJ="$HOME/.claude/projects"
 CODEX="$HOME/.codex"
+HERMES="$HOME/.hermes"
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -29,6 +31,7 @@ while [ $# -gt 0 ]; do
     --out) OUT="${2:-}"; shift 2 ;;
     --root) PROJ="${2:-}"; shift 2 ;;
     --codex-root) CODEX="${2:-}"; shift 2 ;;
+    --hermes-root) HERMES="${2:-}"; shift 2 ;;
     --source) SOURCE="${2:-}"; shift 2 ;;
     -h|--help) sed -n '2,13p' "$0"; exit 0 ;;
     *) echo "모르는 옵션: $1" >&2; exit 2 ;;
@@ -36,8 +39,8 @@ while [ $# -gt 0 ]; do
 done
 
 case "$SOURCE" in
-  all|claude|codex) ;;
-  *) echo "--source 는 all, claude, codex 중 하나여야 한다: $SOURCE" >&2; exit 2 ;;
+  all|claude|codex|hermes) ;;
+  *) echo "--source 는 all, claude, codex, hermes 중 하나여야 한다: $SOURCE" >&2; exit 2 ;;
 esac
 
 if [ -n "$DAYS" ] && ! [[ "$DAYS" =~ ^[1-9][0-9]*$ ]]; then
@@ -51,11 +54,15 @@ fi
 
 command -v jq >/dev/null 2>&1 || { echo "jq 가 필요하다: brew install jq" >&2; exit 1; }
 
-HAS_CLAUDE=0; HAS_CODEX=0
-[ "$SOURCE" != "codex" ] && [ -d "$PROJ" ] && HAS_CLAUDE=1
-[ "$SOURCE" != "claude" ] && [ -d "$CODEX/sessions" ] && HAS_CODEX=1
-if [ "$HAS_CLAUDE" -eq 0 ] && [ "$HAS_CODEX" -eq 0 ]; then
-  echo "읽을 세션 기록이 없다. Claude Code: $PROJ / Codex: $CODEX/sessions" >&2
+HAS_CLAUDE=0; HAS_CODEX=0; HAS_HERMES=0
+[ "$SOURCE" = "all" ] || [ "$SOURCE" = "claude" ] && [ -d "$PROJ" ] && HAS_CLAUDE=1
+[ "$SOURCE" = "all" ] || [ "$SOURCE" = "codex" ] && [ -d "$CODEX/sessions" ] && HAS_CODEX=1
+if { [ "$SOURCE" = "all" ] || [ "$SOURCE" = "hermes" ]; } \
+   && [ -f "$HERMES/state.db" ] && command -v sqlite3 >/dev/null 2>&1; then
+  HAS_HERMES=1
+fi
+if [ "$HAS_CLAUDE" -eq 0 ] && [ "$HAS_CODEX" -eq 0 ] && [ "$HAS_HERMES" -eq 0 ]; then
+  echo "읽을 세션 기록이 없다. Claude Code: $PROJ / Codex: $CODEX/sessions / Hermes: $HERMES/state.db" >&2
   exit 1
 fi
 
@@ -78,7 +85,7 @@ TZOFF=$(date +%z | awk '{ s=substr($0,1,1); h=substr($0,2,2)+0; m=substr($0,4,2)
                           v=h*3600+m*60; print (s=="-" ? -v : v) }')
 
 TSV=$(mktemp -t promptdna)
-trap 'rm -f "$TSV" "$TSV.w" "$TSV.h" "$TSV.claude" "$TSV.codex"' EXIT
+trap 'rm -f "$TSV" "$TSV.w" "$TSV.h" "$TSV.claude" "$TSV.codex" "$TSV.hermes"' EXIT
 
 JQ_PROG='
   fromjson?
@@ -143,6 +150,28 @@ extract_codex() {
   grep -c . "$TSV.codex" 2>/dev/null || true
 }
 
+# Hermes CLI 는 SQLite 하나에 다 넣는다. 읽기 전용으로 열어 실행 중인 헤르메스를 막지 않는다.
+# 경로(cwd)는 저장하지 않아서 저장소는 ? 로 둔다.
+extract_hermes() {
+  [ "$HAS_HERMES" -eq 1 ] || { : > "$TSV.hermes"; echo 0; return; }
+  sqlite3 -separator "$(printf '\t')" "file:${HERMES}/state.db?mode=ro" "
+    select cast(timestamp as integer),
+           strftime('%H', timestamp, 'unixepoch', 'localtime'),
+           strftime('%Y-%m-%d', timestamp, 'unixepoch', 'localtime'),
+           '?',
+           session_id,
+           length(content),
+           replace(replace(replace(content, char(9), ' '), char(13), ' '), char(10), '\n'),
+           'hermes'
+    from messages
+    where role = 'user'
+      and content is not null
+      and content not like '[IMPORTANT:%'
+      and content not like '<%'
+      and timestamp >= ${SINCE};" 2>/dev/null > "$TSV.hermes"
+  grep -c . "$TSV.hermes" 2>/dev/null || true
+}
+
 # 빠른 길: 사람이 타이핑한 지시만 grep 으로 미리 걸러낸다 (931MB 를 5초에 훑는다)
 BASIS="직접 타이핑한 지시만 골랐다"
 if [ "$HAS_CLAUDE" -eq 1 ]; then
@@ -156,8 +185,9 @@ else
 fi
 
 NX=$(extract_codex)
+NH=$(extract_hermes)
 
-cat "$TSV.claude" "$TSV.codex" 2>/dev/null | sort -n -k1,1 > "$TSV"
+cat "$TSV.claude" "$TSV.codex" "$TSV.hermes" 2>/dev/null | sort -n -k1,1 > "$TSV"
 N=$(grep -c . "$TSV" 2>/dev/null || true)
 
 if [ "${N:-0}" -eq 0 ]; then
@@ -178,7 +208,7 @@ SESSIONS=$(cut -f5 "$TSV" | sort -u | grep -c . || true)
 DAYSACT=$(cut -f3 "$TSV" | sort -u | grep -c . || true)
 FIRST=$(head -1 "$TSV" | cut -f3)
 LAST=$(tail -1 "$TSV" | cut -f3)
-PROJECTS=$(cut -f4 "$TSV" | sort -u | grep -c . || true)
+PROJECTS=$(awk -F'\t' '$4 != "?" { print $4 }' "$TSV" | sort -u | grep -c . || true)
 
 # 2000자 넘는 것은 붙여넣은 로그다. 말의 길이가 아니라서 길이 계산에서 뺀다.
 PASTE=$(awk -F'\t' '$6 > 2000' "$TSV" | grep -c . || true)
@@ -194,8 +224,11 @@ CHECK=$(hits '확인|맞아|맞나|맞지|왜 |왜안|왜 안|진짜\?|정말|�
 PRAISE=$(hits '좋아|좋다|굿|굳|고마|감사|잘했|완벽|오케|ㅇㅋ|조아|최고')
 SCOLD=$(hits '아니|다시|틀렸|왜 안|망했|제발|아직|또 |말했잖|하지 마|하지마')
 
-TOPPROJ=$(cut -f4 "$TSV" | sort | uniq -c | sort -rn | head -1 | awk '{ print $2 }')
-TOPPROJN=$(cut -f4 "$TSV" | sort | uniq -c | sort -rn | head -1 | awk '{ print $1 }')
+# 경로를 남기지 않는 도구가 있어서, 편중도는 경로를 아는 지시만으로 잰다.
+KNOWN=$(awk -F'\t' '$4 != "?"' "$TSV" | grep -c . || true)
+TOPPROJ=$(awk -F'\t' '$4 != "?" { print $4 }' "$TSV" | sort | uniq -c | sort -rn | head -1 | awk '{ print $2 }')
+TOPPROJN=$(awk -F'\t' '$4 != "?" { print $4 }' "$TSV" | sort | uniq -c | sort -rn | head -1 | awk '{ print $1 }')
+NOPATH=$(( N - KNOWN ))
 
 PERSESS=$(awk -v n="$N" -v s="$SESSIONS" 'BEGIN { printf "%.1f", (s>0 ? n/s : 0) }')
 
@@ -211,7 +244,7 @@ echo "# 프롬프트 지표"
 echo
 echo "- 구간: ${WINDOW} — 기록 ${FIRST} ~ ${LAST}"
 echo "- 표본: ${BASIS}"
-echo "- 지시 ${N}건 (Claude Code ${NC:-0} · Codex ${NX:-0}) · 세션 ${SESSIONS}개 · 활동한 날 ${DAYSACT}일 · 저장소 ${PROJECTS}개"
+echo "- 지시 ${N}건 (Claude Code ${NC:-0} · Codex ${NX:-0} · Hermes ${NH:-0}) · 세션 ${SESSIONS}개 · 활동한 날 ${DAYSACT}일 · 저장소 ${PROJECTS}개"
 if [ "$N" -lt 100 ]; then
   echo "- 표본 주의: 지시가 100건 미만이라 유형은 임시 결과다. 기록이 더 쌓인 뒤 다시 잰다"
 fi
@@ -254,7 +287,7 @@ if [ "$(cut -f8 "$TSV" | sort -u | grep -c . || true)" -lt 2 ]; then
 else
   echo "같은 사람이 도구마다 다르게 말하는지 본다."
   echo
-  for tool in claude codex; do
+  for tool in claude codex hermes; do
     tn=$(awk -F'\t' -v t="$tool" '$8 == t' "$TSV" | grep -c . || true)
     [ "$tn" -eq 0 ] && continue
     tmed=$(awk -F'\t' -v t="$tool" '$8 == t && $6 <= 2000 { print $6 }' "$TSV" | sort -n \
@@ -263,7 +296,11 @@ else
     tchk=$(awk -F'\t' -v t="$tool" '$8 == t { print $7 }' "$TSV" \
            | grep -cE '확인|맞아|맞나|맞지|왜 |왜안|왜 안|진짜\?|정말|검증|봐줘|보여줘' || true)
     tnight=$(awk -F'\t' -v t="$tool" '$8 == t && $2 >= "00" && $2 <= "05"' "$TSV" | grep -c . || true)
-    if [ "$tool" = "claude" ]; then label="Claude Code"; else label="Codex"; fi
+    case "$tool" in
+      claude) label="Claude Code" ;;
+      codex)  label="Codex" ;;
+      *)      label="Hermes" ;;
+    esac
     echo "- ${label}: 지시 ${tn}건 · 중앙값 ${tmed}자 · 물음표 $(pct "$tq" "$tn")% · 확인 요청 $(pct "$tchk" "$tn")% · 새벽 $(pct "$tnight" "$tn")%"
   done
   echo
@@ -273,10 +310,11 @@ fi
 echo
 echo "## 활동 범위"
 echo
-cut -f4 "$TSV" | sort | uniq -c | sort -rn | head -8 \
-  | while read -r c p; do echo "- ${p}: ${c}건 ($(pct "$c" "$N")%)"; done
+awk -F'\t' '$4 != "?" { print $4 }' "$TSV" | sort | uniq -c | sort -rn | head -8 \
+  | while read -r c p; do echo "- ${p}: ${c}건 ($(pct "$c" "$KNOWN")%)"; done
 echo
-echo "- 최다 저장소 편중도: ${TOPPROJ} $(pct "$TOPPROJN" "$N")%"
+echo "- 최다 저장소 편중도: ${TOPPROJ:-없음} $(pct "$TOPPROJN" "$KNOWN")% (경로를 아는 ${KNOWN}건 기준)"
+[ "$NOPATH" -gt 0 ] && echo "- 경로를 남기지 않는 도구의 지시 ${NOPATH}건은 이 계산에서 뺐다"
 
 echo
 echo "## 말버릇"
@@ -307,7 +345,7 @@ echo
 echo "임계값은 references/types.md 와 같다. 아래 계산은 스크립트가 확정한 값이다."
 echo
 awk -v med="$MEDLEN" -v night="$(pct "$NIGHT" "$N")" -v chk="$(pct "$CHECK" "$N")" \
-    -v top="$(pct "$TOPPROJN" "$N")" 'BEGIN {
+    -v top="$(pct "$TOPPROJN" "$KNOWN")" 'BEGIN {
   a = (med < 60 ? "S" : "L");   printf "- 말수: 중앙값 %d자 → %s (%s)\n", med, a, (a=="S" ? "단문형" : "장문형")
   b = (night >= 15 ? "N" : "D"); printf "- 시간: 새벽 %d%% → %s (%s)\n", night, b, (b=="N" ? "야행성" : "주행성")
   c = (chk >= 25 ? "V" : "T");   printf "- 태도: 확인 요청 %d%% → %s (%s)\n", chk, c, (c=="V" ? "검증형" : "위임형")

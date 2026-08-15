@@ -140,10 +140,10 @@ font-family:"SF Pro Display",Pretendard,"Apple SD Gothic Neo",Inter,sans-serif;p
 body::before,body::after{{content:"";position:absolute;width:34px;height:34px;border:2px solid var(--ac);opacity:.5}}
 body::before{{top:18px;left:20px;border-right:0;border-bottom:0}}
 body::after{{bottom:18px;right:20px;border-left:0;border-top:0}}
-.hd{{display:flex;align-items:flex-end;justify-content:space-between}}
+.hd{{display:flex;align-items:flex-end;justify-content:space-between;gap:18px}}
 h1{{margin:0;font-size:78px;letter-spacing:.1em;line-height:1;color:var(--fg)}}
 h1 small{{display:block;font-size:21px;letter-spacing:0;color:var(--ac);margin-top:10px;font-weight:600}}
-.meta{{text-align:right;color:var(--dim);font-size:12.5px;line-height:1.8}}
+.meta{{text-align:right;color:var(--dim);font-size:12px;line-height:1.8;flex:0 0 auto;white-space:nowrap}}
 .warn{{color:var(--ac);font-size:12.5px;margin-top:8px}}
 hr{{border:0;border-top:1px solid var(--line);margin:26px 0 0;position:relative}}
 hr::after{{content:"";position:absolute;right:0;top:-3px;width:5px;height:5px;
@@ -174,7 +174,7 @@ padding:5px 11px;margin:0 7px 8px 0;font-size:12.5px}}
 color:var(--ac);border:1px solid var(--ac);border-radius:2px;padding:2px 7px;margin-bottom:8px}}
 .co .say{{font-size:14px;line-height:1.65;color:var(--fg)}}
 .co .ex{{margin-top:6px;font-size:12.5px;color:var(--ac2);border-left:2px solid var(--line);padding-left:10px}}
-.ch{{width:104px;height:104px;object-fit:contain;margin-left:20px}}
+.ch{{width:92px;height:92px;object-fit:contain;flex:0 0 auto;margin-bottom:4px}}
 footer{{margin-top:14px;color:var(--dim);font-size:11.5px;display:flex;justify-content:space-between}}
 </style></head><body>
 <div class="hd"><h1>{e(code)}<small>{e(name)}</small></h1>{char_html}
@@ -207,7 +207,7 @@ if [ "$PNG" -eq 1 ]; then
   else
     PNGOUT="${OUT%.html}.png"
     "$CHROME" --headless --disable-gpu --hide-scrollbars \
-      --force-device-scale-factor=2 --window-size=960,880 \
+      --force-device-scale-factor=2 --window-size=960,1080 \
       --screenshot="$PNGOUT" "file://$OUT" >/dev/null 2>&1
     [ -f "$PNGOUT" ] && echo "$PNGOUT" || echo "PNG 렌더에 실패했다" >&2
   fi
